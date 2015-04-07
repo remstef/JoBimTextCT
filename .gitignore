@@ -1,0 +1,62 @@
+# maven target folder
+*/target
+
+# ignore log files
+**/*.log
+
+# eclipse related
+*/.classpath
+*/.project
+*/.settings
+*/.cache
+
+# intelliJ related
+*/.idea
+*/*.iml
+
+# user defined ignore
+**/local_data
+*/local_data
+local_data
+
+# python compiled 
+**/*.pyc
+
+# java compiled 
+**/*.class
+
+# log files
+**/*.log
+
+# bak files
+**/*~
+
+# mac filesystem related
+**/.DS_STORE
+
+# latex related
+**/*.synctex.gz
+**/*.out
+**/*.aux
+**/*.log
+**/*.idx 
+**/*.ind 
+**/*.lof 
+**/*.lot
+**/*.toc
+**/*.acn
+**/*.acr 
+**/*.alg 
+**/*.glg 
+**/*.glo 
+**/*.gls 
+**/*.ist
+**/*.nav 
+**/*.vrb 
+**/*.snm 
+**/*.blg 
+**/*-blx.bib 
+**/*.bbl
+**/*.run.xml
+
+
