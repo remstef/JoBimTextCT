@@ -11,8 +11,10 @@
 */.cache
 
 # intelliJ related
+.idea
 */.idea
-*/*.iml
+**/.idea
+**/*.iml
 
 # user defined ignore
 **/local_data

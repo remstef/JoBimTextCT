@@ -20,7 +20,6 @@ package org.jobimtext.ct
  *
  */
 
-import sparkfun.SparkConfigured
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
