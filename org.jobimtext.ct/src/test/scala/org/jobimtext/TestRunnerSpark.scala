@@ -40,9 +40,9 @@ object TestRunnerSpark {
 //    val lines_out = AggregateContingencyTableDF2.classic(lines_in)
 
     val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb.txt").filter(_.nonEmpty)
-    val lines_out = ClassicToCT(lines_in);
+    val lines_out = AggregateContingencyTableDF2(ClassicToCT(lines_in));
 
-    //lines_out.saveAsTextFile("local_data/testout");
+    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
     lines_out.sortBy(x => x).collect().foreach(line => println(line));
 
     sc.stop();
