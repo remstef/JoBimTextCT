@@ -13,30 +13,39 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.jobimtext.ct
+package org.jobimtext.ct2
 
 /**
  * Created by Steffen Remus.
  */
 
-import org.apache.spark.SparkConf
-import org.apache.spark.SparkContext
+import breeze.linalg.{DenseVector, sum}
 import org.apache.spark.SparkContext._
-import breeze.linalg.{sum, DenseVector}
 import org.apache.spark.rdd.RDD
 
-object AggregateContingencyTableDF2 {
-  
+object AggregateCT2 {
+
+
+  /**
+   *
+   * @param lines_in (docid,e1,e2,n11,n12,n21,n22)
+   * @return (e1,e2,n11,n12,n21,n22,ndocs)
+   */
   def apply(lines_in:RDD[String]):RDD[String] = {
     
     val lines_out = lines_in.map(line => line.split('\t'))
       .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toInt, n12.toInt, n21.toInt, n22.toInt, 1))})
       .reduceByKey((a,b) => a + b)
-      .map({case ((e1,e2), vec) => e1 + "\t" + e2 + vec.foldLeft("")((x,y) => x + "\t" + y.toString()) + "\t" + sum(vec(0 to -2)) })
+      .map({case ((e1,e2), vec) => e1 + "\t" + e2 + "\t" + vec.toArray.mkString("\t")})
     return lines_out
     
   }
 
+  /**
+   *
+   * @param lines_in (docid,e1,e2,n11,n12,n21,n22)
+   * @return (e1,e2,n11,n12,n21,n22,1)
+   */
   def classic(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 5))
@@ -58,7 +67,7 @@ object AggregateContingencyTableDF2 {
 
     val n = joined.map({ case (e1, e2, n11, n1dot, ndot1) => n11 }).sum().toLong;
 
-    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11, 1, n) })
+    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%d\t%d\t%d\t%d\t%d".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11, 1) })
 
     return lines_out
   }

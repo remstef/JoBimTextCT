@@ -40,10 +40,6 @@ object ClassicToCT {
       .map({case (docid, counts_per_doc) => ctFromDoc(docid, counts_per_doc)})
       .flatMap(l => l)
 
-//    val ct_aggregated = ct_per_doc.map({case (docid, e1,e2,n11,n12,n21,n22) => ((e1,e2), DenseVector(n11,n12,n21,n22,1))})
-//      .reduceByKey(_+_)
-//    val lines_out = ct_aggregated.map({case ((e1,e2), vec) => e1 + "\t" + e2 + vec.foldLeft("")((x,y) => x + "\t" + y.toString()) + "\t" + sum(vec(0 to -2)) })
-
     // (docid,e1,e2,n11,n12,n21,n22)
     val lines_out = ct_per_doc.map(t => t._1 + "\t" + t._2 + "\t" + t._3 + "\t" + t._4 + "\t" + t._5 + "\t" + t._6 + "\t" + t._7)
 

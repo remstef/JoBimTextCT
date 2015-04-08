@@ -18,34 +18,27 @@
 
 package org.jobimtext
 
-import breeze.linalg.{sum, DenseMatrix, Matrix, DenseVector}
+import breeze.linalg.DenseVector
+import org.apache.spark.rdd.RDD
 
 /**
  * Created by Steffen Remus.
  */
-object TestRunner {
+object ProbsFromCT {
 
-  def main(args: Array[String]) {
-    val t = ("a", "b", 1, 2, 3, 4)
-    val f = "%s\t"*t.productArity
-    print(f)
+  /**
+   *
+   * @param df degrees of freedom for the Contingency Table
+   * @param lines_in
+   * @return
+   */
+  def apply(df:Int, lines_in:RDD[String]):RDD[String] = {
 
-    val s = Array("1","2",3,4,5)
-    println(s.take(s.length-1).takeRight(s.length - 2).toList)
-    val r = DenseVector(s.take(2)++Array(-1))
-    println(r)
+    val lines_out = lines_in.map(line => line.split('\t'))
+      .map(arr =>  ( arr.take(df).toList , DenseVector(arr.takeRight(arr.length - df)) ))
+      // TODO: finish unfinished business
 
-    println("-----")
-
-    var m = DenseMatrix(Array("1","2","1","3").map(_.toDouble))
-    println(m)
-    m = m.reshape(2,2)
-    println(m)
-    println(sum(m(::,0)))
-
-    println(m(0,1))
-
-    println(m.reshape(1,4))
+    return lines_out.map(_.toString())
 
   }
 

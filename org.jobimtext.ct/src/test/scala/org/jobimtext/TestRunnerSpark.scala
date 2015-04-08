@@ -19,8 +19,9 @@
 package org.jobimtext
 
 import org.apache.spark.{SparkContext, SparkConf}
-import org.jobimtext.classic.ClassicToCT
-import org.jobimtext.ct.AggregateContingencyTableDF2
+import org.jobimtext.classic._
+import org.jobimtext.ct._
+import org.jobimtext.ct2._
 
 /**
  * Created by Steffen Remus.
@@ -40,7 +41,16 @@ object TestRunnerSpark {
 //    val lines_out = AggregateContingencyTableDF2.classic(lines_in)
 
     val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb.txt").filter(_.nonEmpty)
-    val lines_out = AggregateContingencyTableDF2(ClassicToCT(lines_in));
+
+//    val lines_out = AggregateCT2(ClassicToCT(lines_in));
+//    val lines_out = AggregateCT2.classic(ClassicToCT(lines_in));
+
+//    val lines_out = AggregateCT(2, ClassicToCT(lines_in));
+    val lines_out =
+        ProbsFromCT2(
+          CT2Marginals(
+            AggregateCT2(
+              ClassicToCT(lines_in))));
 
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
     lines_out.sortBy(x => x).collect().foreach(line => println(line));
