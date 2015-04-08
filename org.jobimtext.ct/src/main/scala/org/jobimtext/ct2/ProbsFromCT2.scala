@@ -53,4 +53,11 @@ object ProbsFromCT2 {
     return log10prob
   }
 
+  def getLog10JointProbability(ct2:DenseVector[Int]):Double = {
+    val n11 = ct2(0)
+    val n = ct2(3)
+    val log10prob = Math.log10(n11) - Math.log10(n)
+    return log10prob
+  }
+
 }

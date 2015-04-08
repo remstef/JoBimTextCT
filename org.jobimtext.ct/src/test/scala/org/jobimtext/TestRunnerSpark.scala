@@ -22,6 +22,7 @@ import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext.classic._
 import org.jobimtext.ct._
 import org.jobimtext.ct2._
+import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
 
 /**
  * Created by Steffen Remus.
@@ -47,10 +48,15 @@ object TestRunnerSpark {
 
 //    val lines_out = AggregateCT(2, ClassicToCT(lines_in));
     val lines_out =
+      TopProbs(2,
         ProbsFromCT2(
           CT2Marginals(
-            AggregateCT2(
-              ClassicToCT(lines_in))));
+            AggregateCT2.classic(
+              ClassicToCT(lines_in)
+            )
+          )
+        )
+      )
 
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
     lines_out.sortBy(x => x).collect().foreach(line => println(line));
