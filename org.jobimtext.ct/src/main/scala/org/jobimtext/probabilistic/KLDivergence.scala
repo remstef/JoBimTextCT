@@ -26,8 +26,6 @@ import org.apache.spark.rdd.RDD
  */
 object KLDivergence {
 
-  var _top_n = 2
-
   /**
    *
    * @param lines_in (e1,e2,prob,log10prob)
@@ -35,29 +33,12 @@ object KLDivergence {
    */
   def apply(lines_in:RDD[String]):RDD[String] = {
 
-//    val sparkcontext = lines_in.context
-
     val probs = lines_in.map(_.split("\t"))
       .map({case Array(e1,e2,prob,log10prob) => (e1, e2, log10prob.toDouble)})
 
-    val top_probs = probs.map({case (e1, e2, log10prob) => (e1, (e2, log10prob)) })
-      .groupByKey()
-      .map({case (e1, group) => (e1, filterTopMakeRest(group.toSeq))})
-      .flatMap({case (e1, group) => group.map({case (e2, prob) => (e1,e2,prob)})})
+    // TODO: finish unfinished business
 
-    val lines_out = top_probs.map({case (e1,e2,prob) => e1 +"\t"+ e2 +"\t" + Math.pow(10,prob)})
-
-
-    return lines_out
-  }
-
-  def filterTopMakeRest(probs:Seq[(String, Double)]):Seq[(String, Double)] = {
-    var topn = probs.sortBy(-_._2).take(_top_n)
-    val sum_prob = topn.foldLeft(0d)((r,c) => r + Math.pow(10,c._2))
-    val rest_prob = Math.log10(1d-sum_prob)
-    topn = topn++Array(("__REST_PROB__", rest_prob));
-
-    return topn
+    return lines_in
   }
 
 }

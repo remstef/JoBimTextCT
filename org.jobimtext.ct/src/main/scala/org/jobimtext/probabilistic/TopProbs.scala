@@ -33,18 +33,15 @@ object TopProbs {
    */
   def apply(n:Int, lines_in:RDD[String]):RDD[String] = {
 
-    //    val sparkcontext = lines_in.context
-
     val probs = lines_in.map(_.split("\t"))
       .map({case Array(e1,e2,prob,log10prob) => (e1, e2, log10prob.toDouble)})
 
     val top_probs = probs.map({case (e1, e2, log10prob) => (e1, (e2, log10prob)) })
       .groupByKey()
       .map({case (e1, group) => (e1, filterTopMakeRest(n, group.toSeq))})
-      .flatMap({case (e1, group) => group.map({case (e2, prob) => (e1,e2,prob)})})
+      .flatMap({case (e1, group) => group.map({case (e2, log10prob) => (e1,e2,log10prob)})})
 
-    val lines_out = top_probs.map({case (e1,e2,prob) => e1 +"\t"+ e2 +"\t" + Math.pow(10,prob)})
-
+    val lines_out = top_probs.map({case (e1,e2,log10prob) => e1 +"\t"+ e2 +"\t%.3f\t%e".format(Math.pow(10,log10prob), log10prob)})
 
     return lines_out
   }
@@ -57,6 +54,5 @@ object TopProbs {
 
     return topn
   }
-
 
 }
