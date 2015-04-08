@@ -16,8 +16,7 @@
 package org.jobimtext.ct
 
 /**
- * @author Steffen Remus
- *
+ * Created by Steffen Remus.
  */
 
 import org.apache.spark.SparkConf
@@ -40,37 +39,28 @@ object AggregateContingencyTableDF2 {
 
   def classic(lines_in:RDD[String]):RDD[String] = {
 
-    val lines_out = lines_in.map(line => line.split('\t'))
-      .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toInt, n12.toInt, n21.toInt, n22.toInt, 1))})
-      .reduceByKey((a,b) => a + b)
-      .map({case ((e1,e2), vec) => "%s\t%s\t%s\t%s\t%s".format(e1, e2, vec(0), sum(vec(0,1)), sum(vec(0,2)))})
-    return lines_out;
+    val coocc = lines_in.map(line => line.split("\t", 5))
+      /* {case Array(docid, e1, e2, n11, rest) => ((e1, e2), n11.toInt)} */
+      .map(arr => ((arr(1), arr(2)), arr(3).toInt))
+      .reduceByKey((v1, v2) => v1 + v2)
 
+    val e1occ = coocc.map({ case ((e1, e2), n11) => (e1, n11) })
+      .reduceByKey((v1, v2) => v1 + v2)
+
+    val e2occ = coocc.map({ case ((e1, e2), n11) => (e2, n11) })
+      .reduceByKey((v1, v2) => v1 + v2)
+
+    val joined = coocc.map({ case ((e1, e2), n11) => (e1, (e2, n11)) })
+      .join(e1occ) /* (a,((c,4),7)) */
+      .map({ case (e1, ((e2, n11), n1dot)) => (e2, (e1, n11, n1dot)) })
+      .join(e2occ) /* (c,((a,4,7),9)) */
+      .map({ case (e2, ((e1, n11, n1dot), ndot1)) => (e1, e2, n11, n1dot, ndot1) })
+
+    val n = joined.map({ case (e1, e2, n11, n1dot, ndot1) => n11 }).sum().toLong;
+
+    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11, 1, n) })
+
+    return lines_out
   }
-
-
-
-
-
-  def main(args: Array[String]): Unit = {
-//		if (args.size < 2) {
-//			System.err.println("Usage: MainClass <in-file> <out-file>");
-//			System.exit(1);
-//		}
-
-		val conf = new SparkConf().setAppName("ScalaWordCount").setMaster("local[2]").set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec");
-		val sc = new SparkContext(conf);
-
-		val lines_in = sc.textFile("src/test/files/artifical-ct.txt");
-    val lines_out = AggregateContingencyTableDF2(lines_in);
-    //lines_out.saveAsTextFile("test.txt");
-    lines_out.sortBy(x => x).collect().foreach(line => println(line));
-
-		sc.stop();
-
-
-
-
-	}
 
 }

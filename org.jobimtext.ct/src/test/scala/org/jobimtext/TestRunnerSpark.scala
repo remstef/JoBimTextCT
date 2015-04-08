@@ -1,0 +1,52 @@
+/*
+ *
+ *  Copyright 2015.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ *
+ */
+
+package org.jobimtext
+
+import org.apache.spark.{SparkContext, SparkConf}
+import org.jobimtext.classic.ClassicToCT
+import org.jobimtext.ct.AggregateContingencyTableDF2
+
+/**
+ * Created by Steffen Remus.
+ */
+object TestRunnerSpark {
+
+  def main(args: Array[String]) {
+
+    val conf = new SparkConf()
+      .setAppName("SparkTestRunner")
+      .setMaster("local[*]")
+      .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
+
+    val sc = new SparkContext(conf);
+
+//    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-ct.txt").filter(_.nonEmpty)
+//    val lines_out = AggregateContingencyTableDF2.classic(lines_in)
+
+    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb.txt").filter(_.nonEmpty)
+    val lines_out = ClassicToCT(lines_in);
+
+    //lines_out.saveAsTextFile("local_data/testout");
+    lines_out.sortBy(x => x).collect().foreach(line => println(line));
+
+    sc.stop();
+
+  }
+
+}
