@@ -50,7 +50,7 @@ object TopProbs {
     var topn = probs.sortBy(-_._2).take(n)
     val sum_prob = topn.foldLeft(0d)((r,c) => r + Math.pow(10,c._2))
     val rest_prob = Math.log10(1d-sum_prob)
-    topn = topn++Array(("__REST_PROB__", rest_prob));
+    topn = topn++Array(("_*_", rest_prob));
 
     return topn
   }
