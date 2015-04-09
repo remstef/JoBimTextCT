@@ -39,20 +39,24 @@ object TestRunnerSpark {
     val sc = new SparkContext(conf);
 
 //    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-ct.txt").filter(_.nonEmpty)
-//    val lines_out = AggregateContingencyTableDF2.classic(lines_in)
+//    val lines_out = AggregateCT2(lines_in)
+//    val lines_out = AggregateCT2.classic(lines_in)
 
     val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb.txt").filter(_.nonEmpty)
-
 //    val lines_out = AggregateCT2(ClassicToCT(lines_in));
 //    val lines_out = AggregateCT2.classic(ClassicToCT(lines_in));
-
 //    val lines_out = AggregateCT(2, ClassicToCT(lines_in));
+//    val lines_out = ClassicToCT(lines_in)
+//    val lines_out = ClassicToCT.classicToAggregatedCT2(lines_in)
+
     val lines_out =
-      TopProbs(2,
-        ProbsFromCT2(
-          CT2Marginals(
-            AggregateCT2.classic(
-              ClassicToCT(lines_in)
+      KLDivergence(
+        TopProbs(2,
+          ProbsFromCT2(
+            CT2Marginals(
+              AggregateCT2.classic(
+                ClassicToCT(lines_in)
+              )
             )
           )
         )

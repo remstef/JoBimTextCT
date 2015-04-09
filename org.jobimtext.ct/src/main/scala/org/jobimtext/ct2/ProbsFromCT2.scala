@@ -37,7 +37,7 @@ object ProbsFromCT2 {
   def apply(lines_in:RDD[String]):RDD[String] = {
 
     val probs = lines_in.map(line => line.split('\t'))
-      .map( arr => (arr.take(_df).toList, DenseVector(arr.take(arr.length-1).takeRight(arr.length-1-_df).map(_.toInt)), arr(arr.length-1)))
+      .map( arr => (arr.take(_df).toList, DenseVector(arr.take(arr.length-1).takeRight(arr.length-1-_df).map(_.toDouble)), arr(arr.length-1)))
       .map({case (pair, ct2, ndocs) => (pair, getLog10ConditionalProbability(ct2))})
 
     val lines_out = probs.map({case (pair, log10prob) => pair.mkString("\t") + "\t%.3f\t%e".format(Math.pow(10,log10prob), log10prob) })
@@ -46,14 +46,14 @@ object ProbsFromCT2 {
 
   }
 
-  def getLog10ConditionalProbability(ct2:DenseVector[Int]):Double = {
+  def getLog10ConditionalProbability(ct2:DenseVector[Double]):Double = {
     val n11 = ct2(0)
     val n1dot = ct2(1)
     val log10prob = Math.log10(n11) - Math.log10(n1dot)
     return log10prob
   }
 
-  def getLog10JointProbability(ct2:DenseVector[Int]):Double = {
+  def getLog10JointProbability(ct2:DenseVector[Double]):Double = {
     val n11 = ct2(0)
     val n = ct2(3)
     val log10prob = Math.log10(n11) - Math.log10(n)

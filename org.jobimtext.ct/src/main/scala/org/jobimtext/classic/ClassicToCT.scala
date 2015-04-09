@@ -33,7 +33,7 @@ object ClassicToCT {
 
     val ct_per_doc = lines_in.map(line => line.split("\t", 4))
       /* {case Array(e1, e2, docid, rest) => ((docid, e1, e2), 1)} */
-      .map(arr => ((arr(2),arr(0),arr(1)), 1))
+      .map(arr => ((arr(2),arr(0),arr(1)), 1d))
       .reduceByKey((v1,v2) => v1 + v2)
       .map({case ((docid, e1, e2), n11) => (docid, (e1,e2,n11))})
       .groupByKey()
@@ -41,13 +41,13 @@ object ClassicToCT {
       .flatMap(l => l)
 
     // (docid,e1,e2,n11,n12,n21,n22)
-    val lines_out = ct_per_doc.map(t => t._1 + "\t" + t._2 + "\t" + t._3 + "\t" + t._4 + "\t" + t._5 + "\t" + t._6 + "\t" + t._7)
+    val lines_out = ct_per_doc.map({case (docid,e1,e2,n11,n12,n21,n22) => "%s\t%s\t%s\t%.0f\t%.0f\t%.0f\t%.0f".format(docid,e1,e2,n11,n12,n21,n22)})
 
     return lines_out
 
   }
 
-  def ctFromDoc(docid:String, counts_per_doc:Iterable[(String,String,Int)]):Iterable[(String, String,String,Int,Int,Int,Int)] = {
+  def ctFromDoc(docid:String, counts_per_doc:Iterable[(String,String,Double)]):Iterable[(String, String,String,Double,Double,Double,Double)] = {
 
     val n = counts_per_doc.map(_._3).sum
 
@@ -57,7 +57,7 @@ object ClassicToCT {
     val ndot1_counts = counts_per_doc.map({case (e1,e2,n11) => (e2, n11)})
       .groupBy({case (e2, n11) => e2 }).map({case (e2, iter_e2_n11) => (e2, iter_e2_n11.map(_._2).sum)}) /* eq. reduceByKey */
 
-    def get_summed_value(e:String):Int = {
+    def get_summed_value(e:String):Double = {
       val x = ndot1_counts.get(e) match {
         case Some(x) => x
         case None => 0
@@ -76,11 +76,11 @@ object ClassicToCT {
 
   }
 
-  def classic(lines_in:RDD[String]):RDD[String] = {
+  def classicToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 3))
-      /* {case Array(e1, e2, rest) => ((e1, e2), n11.toInt)} */
-      .map(arr => ((arr(0),arr(1)), 1))
+      /* {case Array(e1, e2, rest) => ((e1, e2), n11.toDouble)} */
+      .map(arr => ((arr(0),arr(1)), 1d))
       .reduceByKey((v1,v2) => v1 + v2)
 
     val e1occ = coocc.map({case ((e1, e2), n11) => (e1, n11)})
@@ -95,9 +95,9 @@ object ClassicToCT {
       .join(e2occ) /* (c,((a,4,7),9)) */
       .map({case (e2, ((e1,n11,n1dot), ndot1)) => (e1, e2, n11, n1dot, ndot1)})
 
-    val n = joined.map({case (e1, e2, n11, n1dot, ndot1) => n11}).sum().toLong;
+    val n = joined.map({case (e1, e2, n11, n1dot, ndot1) => n11}).sum()
 
-    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "d1\t%s\t%s\t%d\t%d\t%d\t%d\t%d\t%d".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11, 1, n) })
+    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%.0f\t%.0f\t%.0f\t%.0f\t1".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11) })
 
     return lines_out;
   }

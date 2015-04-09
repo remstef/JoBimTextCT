@@ -36,7 +36,7 @@ object CT2Marginals {
   def apply(lines_in:RDD[String]):RDD[String] = {
 
     val ct_marginal_sums = lines_in.map(line => line.split('\t'))
-      .map( arr => (arr.take(_df).toList, DenseVector(arr.take(arr.length-1).takeRight(arr.length-1-_df).map(_.toInt)), arr(arr.length-1)))
+      .map( arr => (arr.take(_df).toList, DenseVector(arr.take(arr.length-1).takeRight(arr.length-1-_df).map(_.toDouble)), arr(arr.length-1)))
       .map({case (pair, ct2, ndocs) => (pair, getMarginalSums(ct2), ndocs)})
     val lines_out = ct_marginal_sums
       .map({case (pair, ct2, ndocs) => pair.mkString("\t") + "\t" + ct2.toArray.mkString("\t") + "\t" + ndocs })
@@ -44,7 +44,7 @@ object CT2Marginals {
 
   }
 
-  def getMarginalSums(ct2:DenseVector[Int]):DenseVector[Int] = {
+  def getMarginalSums(ct2:DenseVector[Double]):DenseVector[Double] = {
     val ct2_margins = ct2.copy
     ct2_margins(0) = ct2(0)
     ct2_margins(1) = ct2(0) + ct2(1)

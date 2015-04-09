@@ -37,6 +37,10 @@ object KLDivergence {
       .map({case Array(e1,e2,prob,log10prob) => (e1, e2, log10prob.toDouble)})
 
     // TODO: finish unfinished business
+    val p = probs.cartesian(probs)
+
+    p.foreach(println(_))
+
 
     return lines_in
   }

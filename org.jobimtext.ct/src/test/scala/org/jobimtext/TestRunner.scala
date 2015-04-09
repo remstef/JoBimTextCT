@@ -47,6 +47,8 @@ object TestRunner {
 
     println(m.reshape(1,4))
 
+    println("%.0f".format(1))
+
   }
 
 }

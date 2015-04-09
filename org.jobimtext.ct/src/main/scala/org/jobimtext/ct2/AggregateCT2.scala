@@ -34,7 +34,7 @@ object AggregateCT2 {
   def apply(lines_in:RDD[String]):RDD[String] = {
     
     val lines_out = lines_in.map(line => line.split('\t'))
-      .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toInt, n12.toInt, n21.toInt, n22.toInt, 1))})
+      .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toDouble, n12.toDouble, n21.toDouble, n22.toDouble, 1))})
       .reduceByKey((a,b) => a + b)
       .map({case ((e1,e2), vec) => e1 + "\t" + e2 + "\t" + vec.toArray.mkString("\t")})
     return lines_out
@@ -49,8 +49,8 @@ object AggregateCT2 {
   def classic(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 5))
-      /* {case Array(docid, e1, e2, n11, rest) => ((e1, e2), n11.toInt)} */
-      .map(arr => ((arr(1), arr(2)), arr(3).toInt))
+      /* {case Array(docid, e1, e2, n11, rest) => ((e1, e2), n11.toDouble)} */
+      .map(arr => ((arr(1), arr(2)), arr(3).toDouble))
       .reduceByKey((v1, v2) => v1 + v2)
 
     val e1occ = coocc.map({ case ((e1, e2), n11) => (e1, n11) })
@@ -67,7 +67,7 @@ object AggregateCT2 {
 
     val n = joined.map({ case (e1, e2, n11, n1dot, ndot1) => n11 }).sum().toLong;
 
-    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%d\t%d\t%d\t%d\t%d".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11, 1) })
+    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%.0f\t%.0f\t%.0f\t%.0f\t1".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11) })
 
     return lines_out
   }
