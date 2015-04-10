@@ -36,7 +36,7 @@ object KLDivergence {
     val probability_distributions = repr(lines_in)
     val joined_probability_distributions_shared_features = join_shared_features(probability_distributions)
     val kl_divergence = kl(joined_probability_distributions_shared_features)
-    val lines_out = kl_divergence.map(_.toString())
+    val lines_out = kl_divergence.map({case (e,f,dkl) => "%s\t%s\t%f".format(e,f,dkl)})
 
     return lines_out
   }

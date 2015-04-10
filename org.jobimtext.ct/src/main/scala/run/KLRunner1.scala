@@ -16,22 +16,20 @@
  *
  */
 
-package org.jobimtext
+package run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.classic.ClassicToCT
 import org.jobimtext.ct2.{CT2Marginals, ProbsFromCT2}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.spark.SparkConfigured
 import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
-
+import org.jobimtext.spark.SparkConfigured
 
 /**
  * Created by Steffen Remus.
  */
-object SparkRunner extends SparkConfigured{
-
+object KLRunner1 extends SparkConfigured{
 
   def main(args: Array[String]):Unit = {
     run(args)
@@ -77,6 +75,5 @@ object SparkRunner extends SparkConfigured{
 
     return kl
   }
-
 
 }
