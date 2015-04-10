@@ -38,7 +38,7 @@ object TopProbs {
 
     val top_probs = probs.map({case (e1, e2, log10prob) => (e1, (e2, log10prob)) })
       .groupByKey()
-      .map({case (e1, group) => (e1, filterTopMakeRest(n, group.toSeq))})
+      .map({case (e1, group) => (e1, filterTopMakeRest(n, e1, group.toSeq))})
       .flatMap({case (e1, group) => group.map({case (e2, log10prob) => (e1,e2,log10prob)})})
 
     val lines_out = top_probs.map({case (e1,e2,log10prob) => e1 +"\t"+ e2 +"\t%.3f\t%e".format(Math.pow(10,log10prob), log10prob)})
@@ -46,11 +46,11 @@ object TopProbs {
     return lines_out
   }
 
-  def filterTopMakeRest(n:Int, probs:Seq[(String, Double)]):Seq[(String, Double)] = {
+  def filterTopMakeRest(n:Int, e1:String, probs:Seq[(String, Double)]):Seq[(String, Double)] = {
     var topn = probs.sortBy(-_._2).take(n)
     val sum_prob = topn.foldLeft(0d)((r,c) => r + Math.pow(10,c._2))
     val rest_prob = Math.log10(1d-sum_prob)
-    topn = topn++Array(("_*_", rest_prob));
+    topn = topn++Array(("__*_%s_*__".format(e1), rest_prob));
 
     return topn
   }

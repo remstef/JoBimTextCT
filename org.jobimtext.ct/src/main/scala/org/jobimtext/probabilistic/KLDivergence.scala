@@ -44,18 +44,27 @@ object KLDivergence {
   def repr(lines_in:RDD[String]):RDD[(String, String, Double)] = {
     return lines_in.map(_.split("\t"))
       .map({case Array(e,f,prob,log10prob) => (e, f, log10prob.toDouble)})
-      .filter(t => !(t._3.isInfinite || t._3.isNaN)) // filter for non zero probabilities
   }
 
   def kl(data_in:RDD[(String,String, String, Double, Double)]):RDD[(String, String, Double)] = {
-    data_in.foreach(println _)
-    return data_in.map({case (e1,e2,f,log10prob_1,log10prob_2) => ((e1,e2),(f,log10prob_1,log10prob_2))})
-      .groupByKey()
+    val filtered_distributions = data_in.filter(t => !(t._4.isInfinite)) // remove zero P probabilities ( D_KL(P||Q) ) i.e. they sum to 0 anyway
+      .map({case (e1,e2,f,log10prob_1,log10prob_2) => ((e1,e2),(log10prob_1, if(log10prob_2.isInfinite) -100 else log10prob_2))})
+    val kl_divergences = filtered_distributions.groupByKey()
       .map({case ((e1,e2), group) => (e1,e2,kl_local(group.toSeq))})
+    return kl_divergences
   }
 
-  def kl_local(data_in:Seq[(String, Double, Double)]):Double = {
-    val kl = data_in.map({case (f, log10prob_1, log10Prob_2) => math.pow(10, log10prob_1) * (log10prob_1 - log10Prob_2) }).sum
+  /**
+   * compute Kullback Leibler Divergence: D_KL(p|q) = sum_x p(x)*log(p(x)/q(x))
+   * @param data_in
+   * @return
+   */
+  def kl_local(data_in:Seq[(Double, Double)]):Double = {
+    var kl = data_in.map({case (log10prob_p, log10Prob_q) => Math.pow(10, log10prob_p) * (log10prob_p - log10Prob_q)}).sum
+    /* account for negative D_KL values, which happens because P and Q do not sum to one. Zero values in q can be ignored, accounting for p is necessary, add small delta for q for that case */
+    val sum_p = data_in.map({case (log10prob_p, log10Prob_q) => Math.pow(10, log10prob_p)}).sum
+    if(sum_p < 1d)
+      kl += (1d-sum_p) * (Math.log10(sum_p) + 100)
     return kl
   }
 
@@ -65,12 +74,10 @@ object KLDivergence {
    * @return (f,e1,e2,log10prob1,log10prob2)
    */
   def join_shared_features(data_in:RDD[(String, String, Double)]):RDD[(String,String, String, Double, Double)] = {
-
     val data_out = data_in.map({case (e, f, log10prob) => (f, (e, log10prob))})
       .groupByKey() /* (f, (e1, log10prob), (e2,log10prob), (e3, log10prob), ... ) */
       .map({case (f, group) => (f, join_shared_features_local(group.toSeq))})
       .flatMap({case (f, group) => group.map({case (e1, e2, log10prob_1, log10prob_2) => (e1,e2,f,log10prob_1,log10prob_2)})})
-
     return data_out
   }
 
@@ -80,10 +87,8 @@ object KLDivergence {
    * @return ((e1,e2,log10prob_1,log10prob_2),(e1,e2,log10prob_1,log10prob_3),(e2,e3,log10prob_2,log10prob_3),...)
    */
   def join_shared_features_local(group: Seq[(String, Double)]):Seq[(String, String, Double, Double)] = {
-
     val joined = group.flatMap({case (e1,log10prob_1) => group.map({case (e2, log10prob_2) => (e1,e2,log10prob_1,log10prob_2)})})
           .filter(t => !t._1.eq(t._2)) // remove (e1,e1,val1,val1)
-
     return joined
   }
 
