@@ -28,7 +28,7 @@ import java.util.Arrays;
 /**
  * Created by Steffen Remus.
  */
-class SparkConfiguredTest {
+public class SparkConfiguredTest {
 
   @Test
   public void test() {
