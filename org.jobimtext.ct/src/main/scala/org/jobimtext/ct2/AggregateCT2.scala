@@ -36,7 +36,7 @@ object AggregateCT2 {
     val lines_out = lines_in.map(line => line.split('\t'))
       .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toDouble, n12.toDouble, n21.toDouble, n22.toDouble, 1))})
       .reduceByKey((a,b) => a + b)
-      .map({case ((e1,e2), vec) => e1 + "\t" + e2 + "\t" + vec.toArray.mkString("\t")})
+      .map({case ((e1,e2), vec) => e1 + "\t" + e2 + "\t" + vec.map("%.0f".format(_)).toArray.mkString("\t")})
     return lines_out
     
   }

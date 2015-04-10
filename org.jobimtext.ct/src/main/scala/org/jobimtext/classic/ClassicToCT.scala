@@ -80,6 +80,7 @@ object ClassicToCT {
 
     val coocc = lines_in.map(line => line.split("\t", 3))
       .map({case Array(e1, e2, n11) => ((e1, e2), n11.toDouble)})
+      .reduceByKey((v1,v2) => v1 + v2)
 
     val e1occ = coocc.map({case ((e1, e2), n11) => (e1, n11)})
       .reduceByKey((v1,v2) => v1 + v2)
@@ -104,7 +105,6 @@ object ClassicToCT {
 
     val word_feature_count = lines_in.map(line => line.split("\t", 3))
       .map(arr => ((arr(0),arr(1)), 1d))
-      .reduceByKey((v1,v2) => v1 + v2)
       .map({case ((w,f), c) => "%s\t%s\t%.0f".format(w,f,c)})
 
     val lines_out = classicWordFeatureCountToAggregatedCT2(word_feature_count)

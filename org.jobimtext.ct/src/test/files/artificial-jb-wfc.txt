@@ -1,0 +1,9 @@
+a	fa	3
+a	fb	4
+b	fb	3
+d	fc	1
+
+b	fb	2
+b	fd	1
+c	fd	5
+a	fe	1
