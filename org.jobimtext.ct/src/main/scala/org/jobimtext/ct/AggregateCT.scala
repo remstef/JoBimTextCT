@@ -38,7 +38,8 @@ object AggregateCT {
      val lines_out = lines_in.map(line => line.split('\t'))
       .map(arr => ((arr.takeRight(arr.length-1).take(df).toList) , DenseVector(arr.takeRight(arr.length-1 -df).map(_.toDouble)++Array(1d)) ) )
       .foreach(println _) //TODO: finish unfinished business
-    null
+
+     return lines_in
    }
 
  }

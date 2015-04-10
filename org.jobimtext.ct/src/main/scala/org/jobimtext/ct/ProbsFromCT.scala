@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext
+package org.jobimtext.ct
 
 import breeze.linalg.DenseVector
 import org.apache.spark.rdd.RDD
