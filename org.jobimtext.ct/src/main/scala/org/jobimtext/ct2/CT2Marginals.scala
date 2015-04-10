@@ -39,7 +39,7 @@ object CT2Marginals {
       .map( arr => (arr.take(_df).toList, DenseVector(arr.take(arr.length-1).takeRight(arr.length-1-_df).map(_.toDouble)), arr(arr.length-1)))
       .map({case (pair, ct2, ndocs) => (pair, getMarginalSums(ct2), ndocs)})
     val lines_out = ct_marginal_sums
-      .map({case (pair, ct2, ndocs) => pair.mkString("\t") + "\t" + ct2.toArray.mkString("\t") + "\t" + ndocs })
+      .map({case (pair, ct2, ndocs) => pair.mkString("\t") + "\t" + ct2.map(_.toLong).toArray.mkString("\t") + "\t" + ndocs })
     return lines_out
 
   }

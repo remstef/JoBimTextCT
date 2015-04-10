@@ -1,3 +1,5 @@
+import org.jobimtext.run.SparkRunner
+
 /*
  *
  *  Copyright 2015.
@@ -15,8 +17,6 @@
  *  limitations under the License.
  *
  */
-
-import org.jobimtext.SparkRunner
 
 /**
  * Created by Steffen Remus.

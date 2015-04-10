@@ -16,15 +16,15 @@
  *
  */
 
-package org.jobimtext
+package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.classic.ClassicToCT
 import org.jobimtext.ct2.{CT2Marginals, ProbsFromCT2}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.spark.SparkConfigured
 import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
+import org.jobimtext.spark.SparkConfigured
 
 
 /**

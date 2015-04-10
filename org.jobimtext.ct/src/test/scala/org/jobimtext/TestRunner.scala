@@ -20,6 +20,8 @@ package org.jobimtext
 
 import breeze.linalg.{sum, DenseMatrix, Matrix, DenseVector}
 
+import scala.util.Try
+
 /**
  * Created by Steffen Remus.
  */
@@ -47,7 +49,10 @@ object TestRunner {
 
     println(m.reshape(1,4))
 
-    println("%.0f".format(1))
+    println("%.0f".format(1d))
+
+    val x = Try(0/0)
+    println(x.get)
 
   }
 

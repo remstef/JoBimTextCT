@@ -16,8 +16,11 @@
  *
  */
 
-package run
+package org.jobimtext.run
 
+import java.io.FileNotFoundException
+
+import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.classic.ClassicToCT
@@ -25,6 +28,8 @@ import org.jobimtext.ct2.{CT2Marginals, ProbsFromCT2}
 import org.jobimtext.misc.SimSortTopN
 import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
 import org.jobimtext.spark.SparkConfigured
+
+import scala.util.Try
 
 /**
  * Created by Steffen Remus.
@@ -47,7 +52,7 @@ object KLRunner1 extends SparkConfigured{
 
     val kl = run(sc,in,out,topn,sort_out)
 
-    sc.stop();
+    sc.stop()
 
   }
 
@@ -61,17 +66,52 @@ object KLRunner1 extends SparkConfigured{
            ):RDD[String] = {
 
     val lines_in = sc.textFile(in).filter(_.nonEmpty)
-
     val cts = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
-    cts.saveAsTextFile(out + "_ct");
+    cts.saveAsTextFile(out + "_ct")
 
     val probs = TopProbs(topn, ProbsFromCT2(CT2Marginals(cts)))
-    probs.saveAsTextFile(out + "_p");
+    probs.saveAsTextFile(out + "_p")
 
     var kl = KLDivergence(probs)
     if(sort_output)
       kl = SimSortTopN(kl,topn = trimtopn, reverse = reverse_sorting)
-    kl.saveAsTextFile(out + "_kl");
+    kl.saveAsTextFile(out + "_kl")
+
+//    var cts:RDD[String] = null
+//    try {
+//      cts = sc.textFile(out + "_ct").filter(_.nonEmpty)
+//    } catch {
+//      case e => {
+//        e.printStackTrace()
+//        val lines_in = sc.textFile(in).filter(_.nonEmpty)
+//        cts = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
+//        cts.saveAsTextFile(out + "_ct");
+//      }
+//    }
+
+//    var probs:RDD[String] = null
+//    try {
+//      probs = sc.textFile(out + "_p").filter(_.nonEmpty)
+//    } catch {
+//      case e => {
+//        e.printStackTrace()
+//        val probs = TopProbs(topn, ProbsFromCT2(CT2Marginals(cts)))
+//        probs.saveAsTextFile(out + "_p");
+//      }
+//    }
+
+//    var kl:RDD[String] = null
+//    try {
+//      kl = sc.textFile(out + "_kl").filter(_.nonEmpty)
+//    } catch {
+//      case e => {
+//        e.printStackTrace()
+//        var kl = KLDivergence(probs)
+//        if(sort_output)
+//          kl = SimSortTopN(kl,topn = trimtopn, reverse = reverse_sorting)
+//        kl.saveAsTextFile(out + "_kl");
+//      }
+//    }
 
     return kl
   }
