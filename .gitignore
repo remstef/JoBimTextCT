@@ -1,6 +1,10 @@
 # maven target folder
 */target
 
+# sbt project temp and target folder
+*/project/project
+*/project/target
+
 # ignore log files
 **/*.log
 
@@ -13,13 +17,16 @@
 # intelliJ related
 .idea
 */.idea
-**/.idea
-**/*.iml
+*/.idea
+*/*.iml
+*/.idea_modules
+
 
 # user defined ignore
 **/local_data
 */local_data
 local_data
+.history
 
 # python compiled 
 **/*.pyc

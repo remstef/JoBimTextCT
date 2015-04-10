@@ -76,12 +76,10 @@ object ClassicToCT {
 
   }
 
-  def classicToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
+  def classicWordFeatureCountToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 3))
-      /* {case Array(e1, e2, rest) => ((e1, e2), n11.toDouble)} */
-      .map(arr => ((arr(0),arr(1)), 1d))
-      .reduceByKey((v1,v2) => v1 + v2)
+      .map({case Array(e1, e2, n11) => ((e1, e2), n11.toDouble)})
 
     val e1occ = coocc.map({case ((e1, e2), n11) => (e1, n11)})
       .reduceByKey((v1,v2) => v1 + v2)
@@ -98,6 +96,18 @@ object ClassicToCT {
     val n = joined.map({case (e1, e2, n11, n1dot, ndot1) => n11}).sum()
 
     val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%.0f\t%.0f\t%.0f\t%.0f\t1".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11) })
+
+    return lines_out;
+  }
+
+  def classicToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
+
+    val word_feature_count = lines_in.map(line => line.split("\t", 3))
+      .map(arr => ((arr(0),arr(1)), 1d))
+      .reduceByKey((v1,v2) => v1 + v2)
+      .map({case ((w,f), c) => "%s\t%s\t%.0f".format(w,f,c)})
+
+    val lines_out = classicWordFeatureCountToAggregatedCT2(word_feature_count)
 
     return lines_out;
   }
