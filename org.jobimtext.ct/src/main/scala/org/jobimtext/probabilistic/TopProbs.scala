@@ -37,7 +37,7 @@ object TopProbs {
       .map({case Array(e1,e2,prob,log10prob) => (e1, e2, log10prob.toDouble)})
 
     val top_probs = probs.map({case (e1, e2, log10prob) => (e1, (e2, log10prob)) })
-      .groupByKey()
+      .groupByKey()  // TODO: improve performance by using reduceByKey and FixedSizeTreeSet (see SimSortTopN)
       .map({case (e1, group) => (e1, filterTopMakeRest(n, e1, group.toSeq))})
       .flatMap({case (e1, group) => group.map({case (e2, log10prob) => (e1,e2,log10prob)})})
 
