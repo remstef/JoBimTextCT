@@ -18,18 +18,13 @@
 
 package org.jobimtext.run
 
-import java.io.FileNotFoundException
-
-import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.classic.ClassicToCT
 import org.jobimtext.ct2.{SumMarginalsCT, ProbsFromCT}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic.{JoinBySharedFeaturesCartesian, KLDivergenceRdcBy, KLDivergence, TopProbs}
+import org.jobimtext.probabilistic.{JoinBySharedFeaturesGrpBy, KLDivergenceRdcBy, TopProbs}
 import org.jobimtext.spark.SparkConfigured
-
-import scala.util.Try
 
 /**
  * Created by Steffen Remus.
@@ -76,7 +71,7 @@ object KLRunner1 extends SparkConfigured{
     if(checkpoint)
       probs.saveAsTextFile(out + "_p")
 
-    val joinedprobs = JoinBySharedFeaturesCartesian(probs)
+    val joinedprobs = JoinBySharedFeaturesGrpBy(probs)
     if(checkpoint)
       joinedprobs.saveAsTextFile(out + "_jp")
 

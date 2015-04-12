@@ -23,6 +23,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext.classic._
 import org.jobimtext._
+import org.jobimtext.extract.{CooccurrenceWindow, CooccurrenceSentence}
 import org.jobimtext.misc.SimSortTopN
 import org.jobimtext.probabilistic._
 
@@ -32,6 +33,50 @@ import org.jobimtext.probabilistic._
 object TestRunnerSpark {
 
   def main(args: Array[String]) {
+    testSampleSentences
+  }
+
+
+  def testSampleSentences {
+
+    val conf = new SparkConf()
+      .setAppName("SparkTestRunner")
+      .setMaster("local[*]")
+      .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
+
+    val sc = new SparkContext(conf);
+
+    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences.txt").filter(_.nonEmpty)
+    val lines_out =
+      SimSortTopN(10,false,
+        KLDivergenceRdcBy(
+          JoinBySharedFeaturesGrpBy(
+            TopProbs(1000,
+              ct2.ProbsFromCT(
+                ct2.SumMarginalsCT(
+                  ct2.AggregateCT.classic(
+                    ClassicToCT(
+                      CooccurrenceWindow(3,lines_in)
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
+
+
+//    val lines_out = SimSortTopN(10,false,sc.textFile("org.jobimtext.ct/local_data/samplesent_kl"))
+//    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesent_kls");
+
+//    lines_out.foreach(line => println(line));
+
+    sc.stop();
+  }
+
+  def testArtificalData {
 
     val conf = new SparkConf()
       .setAppName("SparkTestRunner")
@@ -75,7 +120,7 @@ object TestRunnerSpark {
       )
 
 //    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
-    lines_out.foreach(line => println(line));
+    lines_out.collect().foreach(line => println(line));
 
     sc.stop();
 

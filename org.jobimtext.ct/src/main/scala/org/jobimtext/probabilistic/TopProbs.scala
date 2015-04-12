@@ -18,7 +18,7 @@
 
 package org.jobimtext.probabilistic
 
-import org.apache.spark.SparkContext.rddToPairRDDFunctions
+import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 
 /**
