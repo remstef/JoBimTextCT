@@ -33,9 +33,9 @@ object SimSortTopN {
   val ord = new Ordering[(String, Double)] {
     def compare(o1:(String, Double), o2:(String, Double)): Int = {
       val r = o1._2.compareTo(o2._2)
-      if(r == 0)
-        o1._1.compareTo(o2._1)
-      r
+      if(r != 0)
+        return r
+      return o1._1.compareTo(o2._1)
     }
   }
 
@@ -45,10 +45,11 @@ object SimSortTopN {
       .map({case Array(o1,o2,sim) => (o1,(o2,sim.toDouble), FixedSizeTreeSet.empty(ord,topn))})
       .map({case (o1,tupl,sortedset) => (o1, (sortedset+=(tupl)))})
       .reduceByKey((r,c) => (r++=(c)))
-      .flatMap({case (o1, s) => s.map({case (o2,sim) => (o1,o2,sim)})})
-//      .sortBy(t=>t._1) // doesn't seem to work
+      .sortByKey()
+      .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim) => (o1,o2,sim)})})
       .map({case (o1,o2,sim) => "%s\t%s\t%f".format(o1,o2,sim)})
     return lines_out
+
   }
 
 }
