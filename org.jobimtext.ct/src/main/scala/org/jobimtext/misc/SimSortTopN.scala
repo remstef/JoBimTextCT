@@ -18,12 +18,8 @@
 
 package org.jobimtext.misc
 
-import java.util.Comparator
-import java.util.function.ToDoubleFunction
-
 import org.apache.spark.rdd.RDD
-import org.apache.spark.SparkContext._
-import org.jobimtext.util.{FixedSizeTreeSetJ, FixedSizeTreeSet}
+import org.jobimtext.util.FixedSizeTreeSet
 
 /**
  * Created by Steffen Remus.
