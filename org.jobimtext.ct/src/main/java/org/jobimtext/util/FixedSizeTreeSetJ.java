@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext.ct.util;
+package org.jobimtext.util;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -25,17 +25,17 @@ import java.util.TreeSet;
 /**
  * Created by Steffen Remus.
  */
-public class FixedSizeSortedSet<E> extends TreeSet<E> {
+public class FixedSizeTreeSetJ<E> extends TreeSet<E> {
 
     private static final long serialVersionUID = 1L;
     private int _maxsize;
 
-    public FixedSizeSortedSet(int maxsize) {
+    public FixedSizeTreeSetJ(int maxsize) {
         super();
         _maxsize = maxsize;
     }
 
-    public FixedSizeSortedSet(int maxsize, Comparator<E> comparator) {
+    public FixedSizeTreeSetJ(int maxsize, Comparator<E> comparator) {
         super(comparator);
         _maxsize = maxsize;
     }
@@ -56,12 +56,12 @@ public class FixedSizeSortedSet<E> extends TreeSet<E> {
         return super.add(e);
     }
 
-    public FixedSizeSortedSet<E> addItem(E e) {
+    public FixedSizeTreeSetJ<E> addItem(E e) {
         add(e);
         return this;
     }
 
-    public FixedSizeSortedSet<E> addItems(Collection<? extends E> c) {
+    public FixedSizeTreeSetJ<E> addItems(Collection<? extends E> c) {
         addAll(c);
         return this;
     }

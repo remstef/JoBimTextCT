@@ -22,9 +22,9 @@ import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext.classic._
-import org.jobimtext.ct._
-import org.jobimtext.ct2._
-import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
+import org.jobimtext._
+import org.jobimtext.misc.SimSortTopN
+import org.jobimtext.probabilistic._
 
 /**
  * Created by Steffen Remus.
@@ -57,12 +57,17 @@ object TestRunnerSpark {
 //    val lines_out = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
 
     val lines_out =
-      KLDivergence(
-        TopProbs(2,
-          ProbsFromCT2(
-            CT2Marginals(
-              AggregateCT2.classic(
-                ClassicToCT(lines_in)
+      SimSortTopN(1,false,
+        KLDivergenceRdcBy(
+          JoinBySharedFeaturesGrpBy(
+//              JoinBySharedFeaturesCartesian(
+            TopProbs(2,
+              ct2.ProbsFromCT(
+                ct2.SumMarginalsCT(
+                  ct2.AggregateCT.classic(
+                    ClassicToCT(lines_in)
+                  )
+                )
               )
             )
           )
@@ -70,7 +75,7 @@ object TestRunnerSpark {
       )
 
 //    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
-    lines_out.sortBy(x => x).collect().foreach(line => println(line));
+    lines_out.foreach(line => println(line));
 
     sc.stop();
 

@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext.ct.util;
+package org.jobimtext.util;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,11 +26,11 @@ import java.util.Arrays;
 /**
  * Created by Steffen Remus.
  */
-public class FixedSizeSortedSetTest {
+public class FixedSizeTreeSetJTest {
 
     @Test
     public void test2(){
-        FixedSizeSortedSet<Double> s = new FixedSizeSortedSet<Double>(3);
+        FixedSizeTreeSetJ<Double> s = new FixedSizeTreeSetJ<Double>(3);
         s.add(1d);
         s.add(2d);
         s.add(3d);
@@ -39,7 +39,6 @@ public class FixedSizeSortedSetTest {
         Assert.assertSame(3, s.size());
         System.out.println(s);
         System.out.println(Arrays.toString(s.toArray()));
-
     }
 
 }

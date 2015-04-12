@@ -25,7 +25,7 @@ import org.apache.spark.rdd.RDD
 /**
  * Created by Steffen Remus.
  */
-object ProbsFromCT2 {
+object ProbsFromCT {
 
   val _df = 2
 

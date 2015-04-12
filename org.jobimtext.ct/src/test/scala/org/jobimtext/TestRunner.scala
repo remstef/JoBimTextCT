@@ -54,6 +54,12 @@ object TestRunner {
     val x = Try(0/0)
     println(x.get)
 
+    val tup1 = ("hello", 1)
+    val tup2 = ("world", 2)
+
+
+
+
   }
 
 }

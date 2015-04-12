@@ -24,7 +24,7 @@ import org.apache.spark.rdd.RDD
 /**
  * Created by Steffen Remus.
  */
-object CT2Marginals {
+object SumMarginalsCT {
 
   val _df = 2
 

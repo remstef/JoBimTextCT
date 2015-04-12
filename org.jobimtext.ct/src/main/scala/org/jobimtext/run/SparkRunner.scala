@@ -21,9 +21,9 @@ package org.jobimtext.run
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.classic.ClassicToCT
-import org.jobimtext.ct2.{CT2Marginals, ProbsFromCT2}
+import org.jobimtext.ct2.{SumMarginalsCT, ProbsFromCT}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic.{KLDivergence, TopProbs}
+import org.jobimtext.probabilistic.{KLDivergenceRdcBy, JoinBySharedFeaturesCartesian, KLDivergence, TopProbs}
 import org.jobimtext.spark.SparkConfigured
 
 
@@ -32,14 +32,14 @@ import org.jobimtext.spark.SparkConfigured
  */
 object SparkRunner extends SparkConfigured{
 
-
   def main(args: Array[String]):Unit = {
     run(args)
   }
 
   override def run(conf:SparkConf, args: Array[String]): Unit = {
 
-    val topn = conf.getOption("topn").getOrElse({println("Setting 'topn' to '%d'.".format(300)); 300}).asInstanceOf[Int]
+    val cp = conf.getOption("checkpoint").getOrElse({println("Create checkpoints: '%s'.".format(true)); true}).asInstanceOf[Boolean]
+    val topnfeatures = conf.getOption("topnf").getOrElse({println("Setting 'topnf' to '%d'.".format(1000)); 1000}).asInstanceOf[Int]
     val sort_out = conf.getOption("sort").getOrElse({println("Sort output: '%s'.".format(false)); false}).asInstanceOf[Boolean]
 
     val in = conf.getOption("in").getOrElse(throw new IllegalStateException("Missing input path. Specify with '-in=<file-or-dir>'."))
@@ -47,36 +47,56 @@ object SparkRunner extends SparkConfigured{
 
     val sc = new SparkContext(conf.setAppName("JoBimTextCT"))
 
-    val kl = run(sc,in,out,topn,sort_out)
+    val kl = run(sc,in,out,cp,topnfeatures,sort_out)
 
-    sc.stop();
+    sc.stop()
 
   }
 
   def run(sc:SparkContext,
           in:String,
           out:String,
-          topn:Int = 300,
+          checkpoint:Boolean,
+          topnfeatures:Int = 1000,
           sort_output:Boolean = false,
           reverse_sorting:Boolean = false,
           trimtopn:Int = 20
            ):RDD[String] = {
 
     val lines_in = sc.textFile(in).filter(_.nonEmpty)
-
     val cts = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
-    cts.saveAsTextFile(out + "_ct");
+    if(checkpoint)
+      cts.saveAsTextFile(out + "_ct")
 
-    val probs = TopProbs(topn, ProbsFromCT2(CT2Marginals(cts)))
-    probs.saveAsTextFile(out + "_p");
+    val probs = TopProbs(topnfeatures, ProbsFromCT(SumMarginalsCT(cts)))
+    if(checkpoint)
+      probs.saveAsTextFile(out + "_p")
 
-    var kl = KLDivergence(probs)
+    val joinedprobs = JoinBySharedFeaturesCartesian(probs)
+    if(checkpoint)
+      joinedprobs.saveAsTextFile(out + "_jp")
+
+    var kl = KLDivergenceRdcBy(joinedprobs)
     if(sort_output)
-      kl = SimSortTopN(kl,topn = trimtopn, reverse = reverse_sorting)
-    kl.saveAsTextFile(out + "_kl");
+      kl = SimSortTopN(topn = trimtopn, reverse = reverse_sorting, kl)
+
+    kl.saveAsTextFile(out + "_kl")
+
+    //    var cts:RDD[String] = null
+    //    try {
+    //      cts = sc.textFile(out + "_ct").filter(_.nonEmpty) // unfortunately the error is not thrown here but when cts is used
+    //    } catch {
+    //      case e => {
+    //        e.printStackTrace()
+    //        val lines_in = sc.textFile(in).filter(_.nonEmpty)
+    //        cts = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
+    //        cts.saveAsTextFile(out + "_ct");
+    //      }
+    //    }
 
     return kl
   }
+
 
 
 }
