@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext.probabilistic
+package org.jobimtext.sim
 
 import org.apache.spark.SparkContext._
 import org.apache.spark.api.java.JavaRDD.fromRDD
@@ -25,7 +25,7 @@ import org.apache.spark.rdd.RDD
 /**
  * Created by Steffen Remus.
  */
-object KLDivergence {
+object KLDivergence_deleteme {
 
   /**
    *

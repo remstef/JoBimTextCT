@@ -20,7 +20,7 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
-import org.jobimtext.probabilistic.{JoinBySharedFeaturesCartesian, JoinBySharedFeaturesGrpBy}
+import org.jobimtext.misc.JoinBySharedFeaturesGrpBy
 import org.jobimtext.spark.SparkConfigured
 
 /**

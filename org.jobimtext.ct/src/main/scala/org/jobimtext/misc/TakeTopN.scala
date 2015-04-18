@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext.probabilistic
+package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
 import org.jobimtext.util.FixedSizeTreeSet
@@ -50,12 +50,17 @@ object TakeTopN {
    * @param descending ordering of top n
    * @return (e1,e1,value) pruned to top n
    */
-  def apply(n:Int, descending:Boolean, lines_in:RDD[String]):RDD[String] = {
+  def apply(n:Int, descending:Boolean, sortbykey:Boolean = false, lines_in:RDD[String]):RDD[String] = {
 
-    val lines_out = lines_in.map(_.split("\t"))
+    var inner_sorted = lines_in.map(_.split("\t"))
       .map({case Array(e1,e2,value) => (e1, (e2, value.toDouble), FixedSizeTreeSet.empty(if (descending) ord_rev else ord, n))})
       .map({case (o1,tupl,sortedset) => (o1, (sortedset+=(tupl)))})
       .reduceByKey((r,c) => (r++=(c)))
+
+    if(sortbykey)
+      inner_sorted = inner_sorted.sortByKey()
+
+    val lines_out = inner_sorted
       .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim) => (o1,o2,sim)})})
       .map({case (o1,o2,sim) => "%s\t%s\t%e".format(o1,o2,sim)})
 

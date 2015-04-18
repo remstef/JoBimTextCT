@@ -24,8 +24,8 @@ import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext._
 import org.jobimtext.ct2.{AggregateCT, ClassicToCT}
 import org.jobimtext.extract.{CooccurrenceWindow, CooccurrenceSentence}
-import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic._
+import org.jobimtext.misc.{Ctconf, Prune, TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.sim._
 
 /**
  * Created by Steffen Remus.
@@ -101,6 +101,8 @@ object TestRunnerSpark {
       .setMaster("local[*]")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
 
+    val prunconf = Ctconf(min_n11 = 1, min_n1dot = 1, min_ndot1 = 1,min_odot1 = 1)
+
     val sc = new SparkContext(conf);
 
 //    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-ct.txt").filter(_.nonEmpty)
@@ -124,19 +126,22 @@ object TestRunnerSpark {
 //        KLDivergenceRdcBy(
 //          JoinBySharedFeaturesGrpBy(-1,
 ////              JoinBySharedFeaturesCartesian(
-            TakeTopN(1,true,
-              ct2.ProbsFromCT(
-                ct2.AggregateCT.classic(
-                  ClassicToCT(lines_in)
+//            TakeTopN(1,true,
+//              ct2.ProbsFromCT(
+                Prune.pruneCT(prunconf.filterCT,
+                  ct2.AggregateCT.classic(
+                    ClassicToCT(lines_in)
+                  )
                 )
-              )
-            )
+//              )
+//            )
 //          )
 //        )
 //      )
 
 //    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
-    lines_out.collect().foreach(line => println(line));
+//    lines_out.collect().foreach(line => println(line));
+    lines_out.takeSample(withReplacement = false, num = 100, seed = 42l).foreach(line => println(line))
 
     sc.stop();
 

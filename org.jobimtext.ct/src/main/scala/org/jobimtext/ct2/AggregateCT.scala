@@ -19,7 +19,6 @@ package org.jobimtext.ct2
  * Created by Steffen Remus.
  */
 
-import breeze.linalg.{DenseVector, sum}
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 

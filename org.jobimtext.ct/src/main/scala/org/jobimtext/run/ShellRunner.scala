@@ -20,10 +20,10 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.jobimtext.ct2.{ClassicToCT, ProbsFromCT}
+import org.jobimtext.ct2.ClassicToCT
 import org.jobimtext.extract.CooccurrenceWindow
-import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic._
+import org.jobimtext.misc.{TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.sim._
 import org.jobimtext.spark.SparkConfigured
 
 /**
@@ -61,9 +61,9 @@ object ShellRunner {
           ):RDD[String] = {
 
    val joinedprobs = sc.textFile(in).filter(_.nonEmpty)
-   var kl = KLDivergenceRdcBy(joinedprobs)
+   var kl = KLDivergence(joinedprobs)
    if(sort_output)
-     kl = SimSortTopN(topn = trimtopn, reverse = reverse_sorting, kl)
+     kl = TakeTopN(n = trimtopn, descending = reverse_sorting, true, kl)
    kl.saveAsTextFile(path = out)
 
    return kl

@@ -21,7 +21,6 @@ package org.jobimtext.ct
  * Created by Steffen Remus.
  */
 
-import breeze.linalg.{DenseVector, sum}
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 
@@ -36,8 +35,9 @@ object AggregateCT {
    def apply(df:Int, lines_in:RDD[String]):RDD[String] = {
     //       .map({case Array(docid, e1, e2, n11, n12, n21, n22) => ((e1,e2), DenseVector(n11.toDouble, n12.toDouble, n21.toDouble, n22.toDouble, 1))})
      val lines_out = lines_in.map(line => line.split('\t'))
-      .map(arr => ((arr.takeRight(arr.length-1).take(df).toList) , DenseVector(arr.takeRight(arr.length-1 -df).map(_.toDouble)++Array(1d)) ) )
-      .foreach(println _) //TODO: finish unfinished business
+      .map(arr => ((arr.takeRight(arr.length-1).take(df).toList) , arr.takeRight(arr.length-1 -df).map(_.toDouble)++Array(1d) ) )
+      .foreach(println _)
+       //TODO: finish unfinished business
 
      return lines_in
    }

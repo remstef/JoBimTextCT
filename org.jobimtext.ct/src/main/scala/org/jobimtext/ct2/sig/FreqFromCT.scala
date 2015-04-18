@@ -16,34 +16,27 @@
  *
  */
 
-package org.jobimtext
+package org.jobimtext.ct2.sig
 
-
-import scala.util.Try
+import org.apache.spark.rdd.RDD
+import org.jobimtext.ct2.CT2
 
 /**
  * Created by Steffen Remus.
  */
-object TestRunner {
+object FreqFromCT {
 
-  def main(args: Array[String]) {
-    val t = ("a", "b", 1, 2, 3, 4)
-    val f = "%s\t"*t.productArity
-    print(f)
+  /**
+   * 2 degrees of freedom
+   * @param lines_in (ct2String)
+   * @return (u1,u2,freq)
+   */
+  def apply(lines_in:RDD[String]):RDD[String] = {
 
-    val s = Array("1","2",3,4,5)
-    println(s.take(s.length-1).takeRight(s.length - 2).toList)
+    val lines_out = lines_in.map(line => CT2.fromString(line))
+      .map(ct2 => "%s\t%s\t%e".format(ct2.u1,ct2.u2,ct2.n11))
 
-    println("%.0f".format(1d))
-
-    val x = Try(0/0)
-    println(x.get)
-
-    val tup1 = ("hello", 1)
-    val tup2 = ("world", 2)
-
-
-
+    return lines_out
 
   }
 

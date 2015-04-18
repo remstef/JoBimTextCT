@@ -16,28 +16,28 @@
  *
  */
 
-package org.jobimtext.ct2
+package org.jobimtext.ct2.sig
 
-import breeze.linalg.{sum, DenseVector}
-import math.{pow,log10}
 import org.apache.spark.rdd.RDD
+import org.jobimtext.ct2.CT2
+
+import scala.math.log
 
 /**
  * Created by Steffen Remus.
  */
-object ProbsFromCT {
+object LMIFromCT {
 
   /**
    * 2 degrees of freedom
    * @param lines_in (ct2String)
-   * @return (u1,u2,log10prob)
+   * @return (u1,u2,lmi)
    */
   def apply(lines_in:RDD[String]):RDD[String] = {
 
-    val probs = lines_in.map(line => CT2.fromString(line))
-      .map(ct2 => (ct2, getLog10ConditionalProbability(ct2)))
-      .map(tupl => "%s\t%s\t%e".format(tupl._1.u1, tupl._1.u2, tupl._2))
-    val lines_out = probs
+    val values = lines_in.map(line => CT2.fromString(line))
+      .map(ct2 => (ct2, lmi(ct2)))
+    val lines_out = values.map({case (ct2,lmi) => "%s\t%s\t%e".format(ct2.u1,ct2.u2,lmi) })
 
     return lines_out
 
@@ -45,26 +45,16 @@ object ProbsFromCT {
 
   /**
    *
-   * p(u2|u1) = n11/n1dot => \sum_u2 p(u2|u1) = p(u1) = n1dot
+   * lmi(u1,u2) = n11 * pmi(u1,u2)
+   * pmi(u1,u2) = log(n11 / n1dot * ndot1)
    *
    * @param ct2
    * @return
    */
-  def getLog10ConditionalProbability(ct2:CT2):Double = {
-    val log10prob = log10(ct2.n11) - log10(ct2.n1dot)
-    return log10prob
-  }
-
-  /**
-   *
-   * p(u1,u2)
-   *
-   * @param ct2
-   * @return
-   */
-  def getLog10JointProbability(ct2:CT2):Double = {
-    val log10prob = log10(ct2.n11) - log10(ct2.n)
-    return log10prob
+  def lmi(ct2:CT2):Double = {
+    val pmi = log(ct2.n11) - ((log(ct2.n1dot) + log(ct2.ndot1)))
+    val lmi = ct2.n11 * pmi
+    return lmi
   }
 
 }

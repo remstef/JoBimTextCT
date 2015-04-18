@@ -4,6 +4,9 @@ HADOOP_CONF_DIR=/etc/hadoop/conf/
 YARN_CONF_DIR=/etc/hadoop/conf.cloudera.yarn/
 
 ##
+#
+#  spark-shell --master yarn --jars jbtct/ct-0.0.1.jar --queue testing --num-executors 100 -i <script.scala>
+#
 #  spark-shell --master yarn --jars jbtct/ct-0.0.1.jar jbtct/breeze_2.11-0.10.jar --queue testing --num-executors 100
 #  spark-shell --deploy-mode client --master local[*] --jars ../../ct-0.0.1.jar ../../breeze_2.11-0.10.jar --conf spark.executor.extraJavaOptions=-XX:-UseConcMarkSweepGC
 #  spark-submit --jars jbtct/breeze_2.11-0.10.jar --class org.jobimtext.run.ExtractRunner --master=yarn-cluster --queue=testing --num-executors 100 jbtct/ct-0.0.1-lt.jar --in=wiki.en.simple/sents --out=wiki.en.simple/coocs --windowsize=3

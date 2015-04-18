@@ -19,30 +19,25 @@
 package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
+import org.jobimtext.util.FixedSizeTreeSet
 import org.apache.spark.SparkContext._
 
 /**
  * Created by Steffen Remus.
  */
-object SimSortTopNGrpBy {
+object SimSortTopN_deleteme {
 
-
-  def apply(lines_in:RDD[String], topn:Int = 200, reverse:Boolean = false):RDD[String] = {
+  def apply( topn:Int = 200, descending:Boolean = false, lines_in:RDD[String]):RDD[String] = {
 
     val lines_out = lines_in.map(_.split("\t"))
-      .map({case Array(o1,o2,sim) => (o1,(o2,sim.toDouble))})
-      .groupByKey()
-      .flatMap({case (o1, group) => sort_local(group.toSeq).map({case (o2,sim) => (o1, o2, sim)})})
-      .sortBy(t => t._1)
+      .map({case Array(o1,o2,sim) => (o1,(o2,sim.toDouble), FixedSizeTreeSet.empty(if (descending) TakeTopN.ord_rev else TakeTopN.ord,topn))})
+      .map({case (o1,tupl,sortedset) => (o1, (sortedset+=(tupl)))})
+      .reduceByKey((r,c) => (r++=(c)))
+      .sortByKey()
+      .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim) => (o1,o2,sim)})})
       .map({case (o1,o2,sim) => "%s\t%s\t%f".format(o1,o2,sim)})
-
     return lines_out
-  }
 
-
-  def sort_local(data_in:Seq[(String, Double)], topn:Int = 200, reverse:Boolean = false):Seq[(String,Double)] = {
-    val sorted = if(reverse) data_in.sortBy({case (k,v) => -v}) else data_in.sortBy({case (k,v) => v})
-    return sorted.take(topn)
   }
 
 }

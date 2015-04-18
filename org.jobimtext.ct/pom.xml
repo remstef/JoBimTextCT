@@ -96,11 +96,11 @@
 			<!--<optional>true</optional>-->
 		</dependency>
 		
-		<dependency>
-		  <groupId>org.scalanlp</groupId>
-		    <artifactId>breeze_2.10</artifactId>
-		    <version>0.10</version>
-		</dependency>
+		<!--<dependency>-->
+		  <!--<groupId>org.scalanlp</groupId>-->
+		    <!--<artifactId>breeze_2.10</artifactId>-->
+		    <!--<version>0.10</version>-->
+		<!--</dependency>-->
 
 		<dependency>
 			<groupId>junit</groupId>

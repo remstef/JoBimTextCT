@@ -16,16 +16,10 @@
  *
  */
 
-package org.jobimtext.probabilistic
+package org.jobimtext.misc
 
-import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.rdd.RDD
-import org.apache.spark.SparkContext._
-import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.spark.SparkConfigured
 import org.jobimtext.util.FixedSizeTreeSet
-
-import scala.collection.TraversableOnce
 
 /**
   * Created by Steffen Remus.

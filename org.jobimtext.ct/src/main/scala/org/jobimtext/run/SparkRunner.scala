@@ -20,9 +20,10 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.jobimtext.ct2.{ClassicToCT, ProbsFromCT}
-import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic._
+import org.jobimtext.ct2.ClassicToCT
+import org.jobimtext.ct2.sig.ProbsFromCT
+import org.jobimtext.misc.{JoinBySharedFeaturesCartesian, TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.sim._
 import org.jobimtext.spark.SparkConfigured
 
 import scala.tools
@@ -73,7 +74,7 @@ object SparkRunner extends SparkConfigured{
     if(checkpoint)
       cts.saveAsTextFile(out + "_ct")
 
-    val probs = TakeTopN(topnfeatures, true, ProbsFromCT(cts))
+    val probs = TakeTopN(topnfeatures, true, false, ProbsFromCT(cts))
     if(checkpoint)
       probs.saveAsTextFile(out + "_p")
 
@@ -81,9 +82,9 @@ object SparkRunner extends SparkConfigured{
     if(checkpoint)
       joinedprobs.saveAsTextFile(out + "_jp")
 
-    var kl = KLDivergenceRdcBy(joinedprobs)
+    var kl = KLDivergence(joinedprobs)
     if(sort_output)
-      kl = SimSortTopN(topn = trimtopn, reverse = reverse_sorting, kl)
+      kl = TakeTopN(n = trimtopn, descending = reverse_sorting, true, kl)
 
     kl.saveAsTextFile(out + "_kl")
 

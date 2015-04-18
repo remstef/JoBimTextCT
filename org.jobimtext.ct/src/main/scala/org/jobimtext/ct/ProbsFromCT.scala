@@ -18,7 +18,7 @@
 
 package org.jobimtext.ct
 
-import breeze.linalg.DenseVector
+
 import org.apache.spark.rdd.RDD
 
 /**
@@ -35,7 +35,7 @@ object ProbsFromCT {
   def apply(df:Int, lines_in:RDD[String]):RDD[String] = {
 
     val lines_out = lines_in.map(line => line.split('\t'))
-      .map(arr =>  ( arr.take(df).toList , DenseVector(arr.takeRight(arr.length - df)) ))
+      .map(arr =>  ( arr.take(df).toList , arr.takeRight(arr.length - df)) )
       // TODO: finish unfinished business
 
     return lines_out.map(_.toString())

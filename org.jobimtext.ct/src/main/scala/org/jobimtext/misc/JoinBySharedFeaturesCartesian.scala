@@ -16,7 +16,7 @@
  *
  */
 
-package org.jobimtext.probabilistic
+package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
 
