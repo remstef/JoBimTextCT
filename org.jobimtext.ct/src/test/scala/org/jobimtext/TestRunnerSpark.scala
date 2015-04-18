@@ -128,11 +128,11 @@ object TestRunnerSpark {
 ////              JoinBySharedFeaturesCartesian(
 //            TakeTopN(1,true,
 //              ct2.ProbsFromCT(
-                Prune.pruneCT(prunconf.filterCT,
+//                Prune.pruneCT(prunconf.filterCT,
                   ct2.AggregateCT.classic(
                     ClassicToCT(lines_in)
                   )
-                )
+//                )
 //              )
 //            )
 //          )
@@ -144,7 +144,6 @@ object TestRunnerSpark {
     lines_out.takeSample(withReplacement = false, num = 100, seed = 42l).foreach(line => println(line))
 
     sc.stop();
-
   }
 
 }
