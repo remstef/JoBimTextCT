@@ -31,7 +31,7 @@ object Prune {
     val values = lines_in.map(line => CT2.fromString(line))
       .filter(filterfun)
 
-    val lines_out = values.map(ct2 => ct2.toString("%.0f")) // FIXME: change numberformat if necessary, currently we only work with round numbers in CTs
+    val lines_out = values.map(ct2 => ct2.toString("%.0f")) // FIXME: change numberformat if necessary, currently we only work with integer numbers in CTs
 
     return lines_out
 
