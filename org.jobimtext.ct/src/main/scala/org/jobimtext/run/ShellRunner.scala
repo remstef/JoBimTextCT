@@ -20,8 +20,7 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.jobimtext.classic.ClassicToCT
-import org.jobimtext.ct2.{SumMarginalsCT, ProbsFromCT}
+import org.jobimtext.ct2.{ClassicToCT, ProbsFromCT}
 import org.jobimtext.extract.CooccurrenceWindow
 import org.jobimtext.misc.SimSortTopN
 import org.jobimtext.probabilistic._

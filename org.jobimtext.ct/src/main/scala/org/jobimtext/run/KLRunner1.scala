@@ -20,10 +20,9 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.jobimtext.classic.ClassicToCT
-import org.jobimtext.ct2.{SumMarginalsCT, ProbsFromCT}
+import org.jobimtext.ct2.{ClassicToCT, AggregateCT, ProbsFromCT}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic.{JoinBySharedFeaturesGrpBy, KLDivergenceRdcBy, TopProbs}
+import org.jobimtext.probabilistic.{TakeTopN, JoinBySharedFeaturesGrpBy, KLDivergenceRdcBy}
 import org.jobimtext.spark.SparkConfigured
 
 /**
@@ -37,16 +36,17 @@ object KLRunner1 extends SparkConfigured{
 
   override def run(conf:SparkConf, args: Array[String]): Unit = {
 
-    val cp = conf.getOption("checkpoint").getOrElse({println("Create checkpoints: '%s'.".format(true)); true}).asInstanceOf[Boolean]
-    val topnfeatures = conf.getOption("topnf").getOrElse({println("Setting 'topnf' to '%d'.".format(1000)); 1000}).asInstanceOf[Int]
-    val sort_out = conf.getOption("sort").getOrElse({println("Sort output: '%s'.".format(false)); false}).asInstanceOf[Boolean]
+    val cp = conf.getOption("checkpoint").getOrElse({println("Create checkpoints: '%s'.".format(true)); "true"}).toBoolean
+    val topnfeatures = conf.getOption("topnf").getOrElse({println("Setting 'topnf' to '%d'.".format(1000)); "1000"}).toInt
+    val sort_out = conf.getOption("sort").getOrElse({println("Sort output: '%s'.".format(false)); "false"}).toBoolean
+    val prune = conf.getOption("prune").getOrElse({println("Setting 'prune' to '%d'.".format(-1)); "-1"}).toInt
 
     val in = conf.getOption("in").getOrElse(throw new IllegalStateException("Missing input path. Specify with '-in=<file-or-dir>'."))
     val out = conf.getOption("out").getOrElse(throw new IllegalStateException("Missing output path. Specify with '-out=<dir>'."))
 
     val sc = new SparkContext(conf.setAppName("JoBimTextCT"))
 
-    val kl = run(sc,in,out,cp,topnfeatures,sort_out)
+    val kl = run(sc,in,out,cp,topnfeatures,prune,sort_out)
 
     sc.stop()
 
@@ -57,6 +57,7 @@ object KLRunner1 extends SparkConfigured{
           out:String,
           checkpoint:Boolean,
           topnfeatures:Int = 1000,
+          prune:Int = -1,
           sort_output:Boolean = false,
           reverse_sorting:Boolean = false,
           trimtopn:Int = 20
@@ -64,14 +65,15 @@ object KLRunner1 extends SparkConfigured{
 
     val lines_in = sc.textFile(in).filter(_.nonEmpty)
     val cts = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
+//    val cts = AggregateCT(ClassicToCT(lines_in))
     if(checkpoint)
-      cts.saveAsTextFile(out + "_ct")
+      cts.saveAsTextFile(out + "_ctc")
 
-    val probs = TopProbs(topnfeatures, ProbsFromCT(SumMarginalsCT(cts)))
+    val probs = TakeTopN(topnfeatures, true, ProbsFromCT(cts))
     if(checkpoint)
       probs.saveAsTextFile(out + "_p")
 
-    val joinedprobs = JoinBySharedFeaturesGrpBy(probs)
+    val joinedprobs = JoinBySharedFeaturesGrpBy(prune, probs)
     if(checkpoint)
       joinedprobs.saveAsTextFile(out + "_jp")
 
@@ -93,7 +95,7 @@ object KLRunner1 extends SparkConfigured{
 //      }
 //    }
 
-    return kl
+    return lines_in
   }
 
 }

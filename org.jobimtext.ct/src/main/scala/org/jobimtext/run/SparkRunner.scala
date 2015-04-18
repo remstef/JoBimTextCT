@@ -20,12 +20,14 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
-import org.jobimtext.classic.ClassicToCT
-import org.jobimtext.ct2.{SumMarginalsCT, ProbsFromCT}
+import org.jobimtext.ct2.{ClassicToCT, ProbsFromCT}
 import org.jobimtext.misc.SimSortTopN
-import org.jobimtext.probabilistic.{KLDivergenceRdcBy, JoinBySharedFeaturesCartesian, KLDivergence, TopProbs}
+import org.jobimtext.probabilistic._
 import org.jobimtext.spark.SparkConfigured
 
+import scala.tools
+import scala.tools.reflect
+import scala.reflect.runtime._
 
 /**
  * Created by Steffen Remus.
@@ -34,6 +36,9 @@ object SparkRunner extends SparkConfigured{
 
   def main(args: Array[String]):Unit = {
     run(args)
+//    val tb = tools.reflect.ToolBox(universe.runtimeMirror(getClass.getClassLoader)).mkToolBox()
+//    println(tb.parse("println(\"hello world\")"))
+
   }
 
   override def run(conf:SparkConf, args: Array[String]): Unit = {
@@ -68,7 +73,7 @@ object SparkRunner extends SparkConfigured{
     if(checkpoint)
       cts.saveAsTextFile(out + "_ct")
 
-    val probs = TopProbs(topnfeatures, ProbsFromCT(SumMarginalsCT(cts)))
+    val probs = TakeTopN(topnfeatures, true, ProbsFromCT(cts))
     if(checkpoint)
       probs.saveAsTextFile(out + "_p")
 

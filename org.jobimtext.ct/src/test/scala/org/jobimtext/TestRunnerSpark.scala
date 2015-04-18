@@ -21,8 +21,8 @@ package org.jobimtext
 import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
-import org.jobimtext.classic._
 import org.jobimtext._
+import org.jobimtext.ct2.{AggregateCT, ClassicToCT}
 import org.jobimtext.extract.{CooccurrenceWindow, CooccurrenceSentence}
 import org.jobimtext.misc.SimSortTopN
 import org.jobimtext.probabilistic._
@@ -33,7 +33,8 @@ import org.jobimtext.probabilistic._
 object TestRunnerSpark {
 
   def main(args: Array[String]) {
-    testSampleSentences
+//    testSampleSentences
+    testArtificalData
   }
 
 
@@ -46,32 +47,49 @@ object TestRunnerSpark {
 
     val sc = new SparkContext(conf);
 
-    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences.txt").filter(_.nonEmpty)
+    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty)
+//    val lines_out =
+//      SimSortTopN(10,false,
+//        KLDivergenceRdcBy(
+//          JoinBySharedFeaturesGrpBy(-1,
+//            TopProbs(1000,
+//              ct2.ProbsFromCT(
+//                ct2.SumMarginalsCT(
+//                  ct2.AggregateCT.classic(
+//                    ClassicToCT(
+//                      CooccurrenceWindow(3,lines_in)
+//                    )
+//                  )
+//                )
+//              )
+//            )
+//          )
+//        )
+//      )
+
     val lines_out =
-      SimSortTopN(10,false,
-        KLDivergenceRdcBy(
-          JoinBySharedFeaturesGrpBy(
-            TopProbs(1000,
-              ct2.ProbsFromCT(
-                ct2.SumMarginalsCT(
+//      SimSortTopN(10,false,
+//        KLDivergenceRdcBy(
+//          JoinBySharedFeaturesGrpBy(-1,
+//            TakeTopN(2, true,
+//              ct2.LMIFromCT(
                   ct2.AggregateCT.classic(
                     ClassicToCT(
-                      CooccurrenceWindow(3,lines_in)
+                      CooccurrenceWindow(100,lines_in)
                     )
                   )
-                )
-              )
-            )
-          )
-        )
-      )
-    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
+//              )
+//            )
+//          )
+//        )
+//      )
+    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
 
 
 //    val lines_out = SimSortTopN(10,false,sc.textFile("org.jobimtext.ct/local_data/samplesent_kl"))
 //    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesent_kls");
 
-//    lines_out.foreach(line => println(line));
+    lines_out.sortBy(x => x).foreach(line => println(line));
 
     sc.stop();
   }
@@ -92,32 +110,30 @@ object TestRunnerSpark {
 
     val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb.txt").filter(_.nonEmpty)
 
-//    val lines_out = AggregateCT2(ClassicToCT(lines_in));
-//    val lines_out = AggregateCT2.classic(ClassicToCT(lines_in));
+//        val lines_out = ClassicToCT(lines_in)
+//    val lines_out = ct2.AggregateCT(ClassicToCT(lines_in));
+//    val lines_out = ct2.AggregateCT.classic(ClassicToCT(lines_in));
 //    val lines_out = AggregateCT(2, ClassicToCT(lines_in));
-//    val lines_out = ClassicToCT(lines_in)
 //    val lines_out = ClassicToCT.classicToAggregatedCT2(lines_in)
 
 //    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/artificial-jb-wfc.txt").filter(_.nonEmpty)
 //    val lines_out = ClassicToCT.classicWordFeatureCountToAggregatedCT2(lines_in)
 
     val lines_out =
-      SimSortTopN(1,false,
-        KLDivergenceRdcBy(
-          JoinBySharedFeaturesGrpBy(
-//              JoinBySharedFeaturesCartesian(
-            TopProbs(2,
+//      SimSortTopN(1,false,
+//        KLDivergenceRdcBy(
+//          JoinBySharedFeaturesGrpBy(-1,
+////              JoinBySharedFeaturesCartesian(
+            TakeTopN(1,true,
               ct2.ProbsFromCT(
-                ct2.SumMarginalsCT(
-                  ct2.AggregateCT.classic(
-                    ClassicToCT(lines_in)
-                  )
+                ct2.AggregateCT.classic(
+                  ClassicToCT(lines_in)
                 )
               )
             )
-          )
-        )
-      )
+//          )
+//        )
+//      )
 
 //    //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/testout");
     lines_out.collect().foreach(line => println(line));

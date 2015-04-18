@@ -20,7 +20,7 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
-import org.jobimtext.probabilistic.JoinBySharedFeaturesGrpBy
+import org.jobimtext.probabilistic.{JoinBySharedFeaturesCartesian, JoinBySharedFeaturesGrpBy}
 import org.jobimtext.spark.SparkConfigured
 
 /**
@@ -36,19 +36,21 @@ object JoinBySharedFeaturesRunner extends SparkConfigured {
 
     val in = conf.getOption("in").getOrElse(throw new IllegalStateException("Missing input path. Specify with '-in=<file-or-dir>'."))
     val out = conf.getOption("out").getOrElse(throw new IllegalStateException("Missing output path. Specify with '-out=<dir>'."))
+    val prune = conf.getOption("prune").getOrElse({println("Setting 'prune' to '%d'.".format(-1)); "-1"}).toInt
 
     val sc = new SparkContext(conf.setAppName("JoBimTextCT"))
 
-    run(sc, in, out)
+    run(sc, in, out, prune)
 
     sc.stop()
 
   }
 
-  def run(sc:SparkContext, in:String, out:String):RDD[String] = {
+  def run(sc:SparkContext, in:String, out:String, prune:Int = -1):RDD[String] = {
 
     val lines_in = sc.textFile(in)
-    val lines_out = JoinBySharedFeaturesGrpBy(lines_in)
+    val lines_out = JoinBySharedFeaturesGrpBy(prune, lines_in)
+//    val lines_out = JoinBySharedFeaturesCartesian(lines_in)
     lines_out.saveAsTextFile(out)
     return lines_out
 
