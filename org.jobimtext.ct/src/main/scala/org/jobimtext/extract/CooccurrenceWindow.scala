@@ -36,7 +36,7 @@ object CooccurrenceWindow {
     val windows = tokens.sliding(windowsize).map(_.toSeq)
     val windowsfinal = for (k <- 1 to windowsize-1) yield tokens.slice(tokens.length - k, tokens.length).toSeq
     val windowsall = windows++windowsfinal
-    return windowsall.flatMap(w => for (i <- 1 until w.length) yield "%s\t%s\t%s\n%2$s\t%1$s\t%3$s".format(w(0), w(i), id))
+    return windowsall.flatMap(w => for (i <- 1 until w.length) yield "%s\tf_%s\t%s\n%2$s\tf_%1$s\t%3$s".format(w(0), w(i), id))
   }
 
 

@@ -16,29 +16,17 @@
  *
  */
 
-package org.jobimtext.ct2.sig
+package org.jobimtext.util
 
-import org.apache.spark.rdd.RDD
-import org.jobimtext.ct2.CT2
-import org.jobimtext.util.Util
+import java.text.DecimalFormat
 
 /**
  * Created by Steffen Remus.
  */
-object FreqFromCT {
+object Util {
 
-  /**
-   * 2 degrees of freedom
-   * @param lines_in (ct2String)
-   * @return (u1,u2,freq)
-   */
-  def apply(lines_in:RDD[String]):RDD[String] = {
+  val nf = new DecimalFormat("##0.#########E00")
 
-    val lines_out = lines_in.map(line => CT2.fromString(line))
-      .map(ct2 => "%s\t%s\t%s".format(ct2.u1,ct2.u2,Util.format(ct2.n11)))
-
-    return lines_out
-
-  }
+  def format(number: Number):String = nf.format(number)
 
 }

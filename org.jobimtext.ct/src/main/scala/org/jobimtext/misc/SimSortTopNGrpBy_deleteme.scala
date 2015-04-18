@@ -20,6 +20,7 @@ package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
+import org.jobimtext.util.Util
 
 /**
  * Created by Steffen Remus.
@@ -34,7 +35,7 @@ object SimSortTopNGrpBy_deleteme {
       .groupByKey()
       .flatMap({case (o1, group) => sort_local(group.toSeq, topn, reverse).map({case (o2,sim) => (o1, o2, sim)})})
       .sortBy(t => t._1)
-      .map({case (o1,o2,sim) => "%s\t%s\t%f".format(o1,o2,sim)})
+      .map({case (o1,o2,sim) => "%s\t%s\t%s".format(o1,o2,Util.format(sim))})
 
     return lines_out
   }

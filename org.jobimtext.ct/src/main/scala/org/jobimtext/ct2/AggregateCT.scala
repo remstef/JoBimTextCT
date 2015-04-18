@@ -46,7 +46,7 @@ object AggregateCT {
       .map(arr => CT2.fromStringArray(arr.takeRight(arr.length -1)))
       .map(ct => ((ct.u1, ct.u2), ct))
       .reduceByKey((r,c) => (r + c))
-      .map({case ((e1,e2), ct) => ct.toString("%.0f")})
+      .map({case ((e1,e2), ct) => ct.toString()})
     return lines_out
 
   }
@@ -55,35 +55,13 @@ object AggregateCT {
    *
    * classic, i.e. globally, corpus wide counts
    *
-   * TODO: could this can be done more efficiently?
+   * TODO: think! could this can be done more efficiently?
    *
    * @param lines_in (docid,e1,e2,n11,n12,n21,n22)
    * @return (e1,e2,n11,n12,n21,n22,1)
    */
   def classic(lines_in:RDD[String]):RDD[String] = {
 
-//    val coocc = lines_in.map(line => line.split("\t", 5))
-//      /* {case Array(docid, e1, e2, n11, rest) => ((e1, e2), n11.toDouble)} */
-//      .map(arr => ((arr(1), arr(2)), arr(3).toDouble))
-//      .reduceByKey((v1, v2) => v1 + v2)
-//
-//    val e1occ = coocc.map({ case ((e1, e2), n11) => (e1, n11) })
-//      .reduceByKey((v1, v2) => v1 + v2)
-//
-//    val e2occ = coocc.map({ case ((e1, e2), n11) => (e2, n11) })
-//      .reduceByKey((v1, v2) => v1 + v2)
-//
-//    val joined = coocc.map({ case ((e1, e2), n11) => (e1, (e2, n11)) })
-//      .join(e1occ) /* (a,((c,4),7)) */
-//      .map({ case (e1, ((e2, n11), n1dot)) => (e2, (e1, n11, n1dot)) })
-//      .join(e2occ) /* (c,((a,4,7),9)) */
-//      .map({ case (e2, ((e1, n11, n1dot), ndot1)) => (e1, e2, n11, n1dot, ndot1) })
-//
-//    val n = joined.map({ case (e1, e2, n11, n1dot, ndot1) => n11 }).sum().toLong;
-//
-//    val lines_out = joined.map({ case (e1, e2, n11, n1dot, ndot1) => "%s\t%s\t%.0f\t%.0f\t%.0f\t%.0f\t1".format(e1, e2, n11, (n1dot-n11), (ndot1-n11), n - (n1dot + ndot1) + n11) })
-
-    // copied from ClassicToCT.classicWordFeatureCountToAggregatedCT2
     // forget about n12,n21 and so on, since we only need n11
     val coocc = lines_in.map(line => line.split("\t", 5))
       .map({case Array(docid,u1, u2, n11,rest) => ((u1, u2), (n11.toDouble, 1l))})
@@ -104,7 +82,7 @@ object AggregateCT {
     val n = joined.map({case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1)) => n11}).sum()
     val o = joined.count().toDouble
 
-    val lines_out = joined.map({ case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, ndocs).toString("%.0f")})
+    val lines_out = joined.map({ case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, ndocs).toString()})
 
     return lines_out;
 

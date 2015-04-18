@@ -19,7 +19,7 @@
 package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
-import org.jobimtext.util.FixedSizeTreeSet
+import org.jobimtext.util.{Util, FixedSizeTreeSet}
 import org.apache.spark.SparkContext._
 
 /**
@@ -35,7 +35,7 @@ object SimSortTopN_deleteme {
       .reduceByKey((r,c) => (r++=(c)))
       .sortByKey()
       .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim) => (o1,o2,sim)})})
-      .map({case (o1,o2,sim) => "%s\t%s\t%f".format(o1,o2,sim)})
+      .map({case (o1,o2,sim) => "%s\t%s\t%s".format(o1,o2,Util.format(sim))})
     return lines_out
 
   }

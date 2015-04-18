@@ -19,6 +19,7 @@
 package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
+import org.jobimtext.util.Util
 
 /**
  * Created by Steffen Remus.
@@ -33,7 +34,7 @@ object JoinBySharedFeaturesCartesian {
   def apply(lines_in:RDD[String]):RDD[String] = {
     val data_in = repr(lines_in)
     val data_out = join_shared_features(data_in)
-    val lines_out = data_out.map({case (e1,e2,f1,l1,l2) => "%s\t%s\t%s\t%e\t%e".format(e1,e2,f1,l1,l2)})
+    val lines_out = data_out.map({case (e1,e2,f1,l1,l2) => "%s\t%s\t%s\t%s\t%s".format(e1,e2,f1,Util.format(l1),Util.format(l2))})
     return lines_out
   }
 

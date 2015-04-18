@@ -18,6 +18,10 @@
 
 package org.jobimtext.ct2
 
+import java.text.DecimalFormat
+
+import org.jobimtext.util.Util
+
 /**
  * Created by Steffen Remus.
  */
@@ -80,11 +84,15 @@ case class CT2(u1:String, u2:String, var n11:Double, var n12:Double, var n21:Dou
   }
 
   override def toString():String = {
-    "%s\t%s\t%e\t%e\t%e\t%e\t%e\t%e\t%e\t%d".format(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs)
-  }
-
-  def toString(numberformat:String):String = {
-    ("%s\t%s\t"+numberformat+"\t"+numberformat+"\t"+numberformat+"\t"+numberformat+"\t"+numberformat+"\t"+numberformat+"\t"+numberformat+"\t%d").format(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs)
+    "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d".format(
+      u1,u2,
+      Util.format(n11),
+      Util.format(n12),
+      Util.format(n21),
+      Util.format(n22),
+      Util.format(o12),
+      Util.format(o21),
+      Util.format(o22),ndocs)
   }
 
 }

@@ -37,7 +37,7 @@ object ClassicToCT {
       .flatMap(l => l)
 
     // (docid,u1,u2,n11,n12,n21,n22,n12_,n21_,n22_)
-    val lines_out = ct_per_doc.map({case (docid,ct2) => docid + "\t" + ct2.toString("%.0f")})
+    val lines_out = ct_per_doc.map({case (docid,ct2) => docid + "\t" + ct2.toString()})
 
     return lines_out
 
@@ -103,7 +103,7 @@ object ClassicToCT {
     val n = joined.map({case (u1, u2, n11, n1dot, ndot1) => n11}).sum()
     val o = joined.count().toDouble
 
-    val lines_out = joined.map({ case (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, 1l).toString("%.0f")})
+    val lines_out = joined.map({ case (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, 1l).toString()})
 
     return lines_out;
   }

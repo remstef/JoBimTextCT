@@ -20,6 +20,7 @@ package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
 import org.jobimtext.ct2.CT2
+import org.jobimtext.util.Util
 
 /**
  * Created by Steffen Remus.
@@ -31,7 +32,7 @@ object Prune {
     val values = lines_in.map(line => CT2.fromString(line))
       .filter(filterfun)
 
-    val lines_out = values.map(ct2 => ct2.toString("%.0f")) // FIXME: change numberformat if necessary, currently we only work with integer numbers in CTs
+    val lines_out = values.map(ct2 => ct2.toString())
 
     return lines_out
 
@@ -41,7 +42,7 @@ object Prune {
     lines_in.map(_.split("\t"))
       .map({ case Array(u1, u2, value) => (u1, u2, value.toDouble) })
       .filter(filterfun)
-      .map({ case (u1,u2,value) => "%s\t%s\t%e".format(u1,u2,value) })
+      .map({ case (u1,u2,value) => "%s\t%s\t%s".format(u1,u2, Util.format(value)) })
   }
 
 

@@ -20,6 +20,7 @@ package org.jobimtext.ct2.sig
 
 import org.apache.spark.rdd.RDD
 import org.jobimtext.ct2.CT2
+import org.jobimtext.util.Util
 
 import scala.math.log
 
@@ -37,7 +38,7 @@ object LMIFromCT {
 
     val values = lines_in.map(line => CT2.fromString(line))
       .map(ct2 => (ct2, lmi(ct2)))
-    val lines_out = values.map({case (ct2,lmi) => "%s\t%s\t%e".format(ct2.u1,ct2.u2,lmi) })
+    val lines_out = values.map({case (ct2,lmi) => "%s\t%s\t%s".format(ct2.u1,ct2.u2,Util.format(lmi)) })
 
     return lines_out
 
