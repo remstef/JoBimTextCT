@@ -35,24 +35,6 @@ object AggregateCT {
 
   /**
    *
-   * CT normalized by document count, then aggregated globally / corpus wise
-   *
-   * @param lines_in (docid,e1,e2,n11,n12,n21,n22)
-   * @return (e1,e2,n11,n12,n21,n22,ndocs)
-   */
-  def ctNormalizedByNumDocs(lines_in:RDD[String]):RDD[String] = {
-
-    val lines_out = null
-    // classic( ... )
-    // TODO: finsish unfinished business
-    // TODO: think about IDF instead of just normalizing by DF!
-
-    return null
-
-  }
-
-  /**
-   *
    * CT per document
    *
    * @param lines_in (docid,e1,e2,n11,n12,n21,n22,o12,o21,o22)
@@ -104,25 +86,25 @@ object AggregateCT {
     // copied from ClassicToCT.classicWordFeatureCountToAggregatedCT2
     // forget about n12,n21 and so on, since we only need n11
     val coocc = lines_in.map(line => line.split("\t", 5))
-      .map({case Array(docid,u1, u2, n11,rest) => ((u1, u2), n11.toDouble)})
-      .reduceByKey((v1,v2) => v1 + v2)
+      .map({case Array(docid,u1, u2, n11,rest) => ((u1, u2), (n11.toDouble, 1l))})
+      .reduceByKey((r,c) => (r._1 + c._1, r._2 + c._2)) // (u1,u2),(n11,ndocs)
 
-    val u1occ = coocc.map({case ((u1, u2), n11) => (u1, (n11,1d))})
+    val u1occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u1, (n11,1d))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2))
 
-    val u2occ = coocc.map({case ((u1, u2), n11) => (u2, (n11,1d))})
+    val u2occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u2, (n11,1d))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2))
 
-    val joined = coocc.map({case ((u1, u2), n11) => (u1, (u2, n11))})
-      .join(u1occ) /* (a,((c,n11),(n1dot,o1dot))) */
-      .map({case (u1, ((u2,n11),(n1dot,o1dot))) => (u2, (u1, n11, (n1dot,o1dot)))})
-      .join(u2occ) /* (c,((a,n11,(n1dot,o1dot)),(ndot1,odot1))) */
-      .map({case (u2, ((u1,n11,(n1dot,o1dot)), (ndot1,odot1))) => (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) )})
+    val joined = coocc.map({case ((u1, u2), (n11, ndocs)) => (u1, (u2, ndocs, n11))})
+      .join(u1occ) /* (a,((c,ndocs,n11),(n1dot,o1dot))) */
+      .map({case (u1, ((u2,ndocs,n11),(n1dot,o1dot))) => (u2, (u1, ndocs, n11, (n1dot,o1dot)))})
+      .join(u2occ) /* (c,((a,ndocs, n11,(n1dot,o1dot)),(ndot1,odot1))) */
+      .map({case (u2, ((u1,ndocs,n11,(n1dot,o1dot)), (ndot1,odot1))) => (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) )})
 
-    val n = joined.map({case (u1, u2, n11, n1dot, ndot1) => n11}).sum()
+    val n = joined.map({case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1)) => n11}).sum()
     val o = joined.count().toDouble
 
-    val lines_out = joined.map({ case (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d,1l).toString("%.0f")})
+    val lines_out = joined.map({ case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, ndocs).toString("%.0f")})
 
     return lines_out;
 
