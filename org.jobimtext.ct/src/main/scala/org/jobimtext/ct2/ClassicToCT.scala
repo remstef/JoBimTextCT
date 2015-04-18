@@ -77,6 +77,11 @@ object ClassicToCT {
 
   }
 
+  /**
+   *
+   * @param lines_in input format: 'jo <tab> bim <tab> count <tab-or-no-tab> ...
+   * @return ct2format
+   */
   def classicWordFeatureCountToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 3))
