@@ -26,7 +26,7 @@ import org.apache.spark.rdd.RDD
 object CooccurrenceWindow {
 
   def apply(windowsize:Int, lines_in:RDD[String]):RDD[String] = {
-    val lines_out = lines_in.map(_.toLowerCase).flatMap(getCooccurrences(_,windowsize))
+    val lines_out = lines_in.flatMap(getCooccurrences(_,windowsize))
     return lines_out
   }
 

@@ -26,7 +26,7 @@ import org.apache.spark.rdd.RDD
 object CooccurrenceSentence {
 
   def apply(lines_in:RDD[String]):RDD[String] = {
-    val lines_out = lines_in.map(_.toLowerCase).flatMap(getCooccurrences(_))
+    val lines_out = lines_in.flatMap(getCooccurrences(_))
     return lines_out
   }
 

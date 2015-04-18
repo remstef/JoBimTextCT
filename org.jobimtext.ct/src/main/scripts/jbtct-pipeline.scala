@@ -1,4 +1,4 @@
-import org.jobimtext.extract.CooccurrenceWindow
+import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow}
 
 /*
  *
@@ -37,7 +37,7 @@ import org.jobimtext.extract.CooccurrenceWindow
  *
  * Notes:
  *
- *    - val sc (SparkContext) is defined through spark-shell
+ *    - val sc (SparkContext) is globally defined through spark-shell
  *    - fill in required variables below:
  *      - in
  *      - out
@@ -63,11 +63,12 @@ import org.jobimtext.extract.CooccurrenceWindow
 
 try {
 
+//  import relevant stuff
 import org.jobimtext.{ct2, sim}
 import org.jobimtext.misc._
 
-val in = "src/test/files/artificial-jb.txt" //"input-dir-or-file"
-val out = "local_data/out-artificial-jb.txt" //"output-dir"
+// set the name of the app
+sc.getConf.setAppName("jbtct")
 
 val ctconf = Ctconf(
   min_ndot1 = 2,
@@ -82,14 +83,15 @@ val ctconf = Ctconf(
   min_sim = 2
 )
 
-// set the name of the app
-sc.getConf.setAppName("jbtct")
+// set input and output paths
+val in = "input-dir-or-file" // "src/test/files/samplesentences_2.txt"
+val out = "output-dir" // "out-samplesentences2.txt"
 
 // read non empty lines from input dir or file
 val lines_in = sc.textFile(in).filter(_.nonEmpty)
 
 // compute co-occurrences in default jbtct format, 'jo <tab> bim <tab> docid' ...
-val coocs = CooccurrenceWindow(5,lines_in)
+val coocs = NgramWithHole(n=3, allcombinations=true, lines_in) // CooccurrenceWindow(3,lines_in) // CooccurrenceSentence(lines_in)
 
 // ... or read co-occurrences from default jbtct format
 //val coocs = sc.textFile(in).filter(_.nonEmpty)
@@ -105,7 +107,7 @@ ctsp.saveAsTextFile(out + "_2ctp")
 ctsp.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
 
 // compute, prune, take top n, save and peek significance scores from contingency tables
-var sgnfnc = ct2.sig.FreqFromCT(cts) // ct2.sig.ProbsFromCT(cts) // ct2.sig.LMIFromCT(ctsp) //
+var sgnfnc = ct2.sig.FreqFromCT(ctsp) // ct2.sig.ProbsFromCT(ctsp) // ct2.sig.LMIFromCT(ctsp) //
 sgnfnc = Prune.pruneByValue(ctconf.filterBySignificance, sgnfnc)
 sgnfnc = TakeTopN(n = ctconf.topn_f, descending = true, sortbykey = false, sgnfnc)
 sgnfnc.saveAsTextFile(out + "_3lmi")

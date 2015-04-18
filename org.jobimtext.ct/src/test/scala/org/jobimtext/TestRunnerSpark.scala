@@ -23,7 +23,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext._
 import org.jobimtext.ct2.{AggregateCT, ClassicToCT}
-import org.jobimtext.extract.{CooccurrenceWindow, CooccurrenceSentence}
+import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow, CooccurrenceSentence}
 import org.jobimtext.misc.{Ctconf, Prune, TakeTopN, SimSortTopN_deleteme}
 import org.jobimtext.sim._
 
@@ -33,8 +33,8 @@ import org.jobimtext.sim._
 object TestRunnerSpark {
 
   def main(args: Array[String]) {
-//    testSampleSentences
-    testArtificalData
+    testSampleSentences
+//    testArtificalData
   }
 
 
@@ -75,7 +75,8 @@ object TestRunnerSpark {
 //              ct2.LMIFromCT(
                   ct2.AggregateCT.classic(
                     ClassicToCT(
-                      CooccurrenceWindow(100,lines_in)
+//                      CooccurrenceWindow(100,lines_in)
+                      NgramWithHole(3,false,lines_in)
                     )
                   )
 //              )
