@@ -25,8 +25,8 @@ import java.text.DecimalFormat
  */
 object Util {
 
-  val nf = new DecimalFormat("##0.#########E00")
+  val nf = new DecimalFormat("##0.######E00")
 
-  def format(number: Number):String = nf.format(number)
+  def format(number: Number):String = nf.format(number).replace("E00","")
 
 }
