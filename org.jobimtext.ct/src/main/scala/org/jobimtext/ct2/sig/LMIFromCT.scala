@@ -46,14 +46,16 @@ object LMIFromCT {
 
   /**
    *
-   * lmi(u1,u2) = n11 * pmi(u1,u2)
-   * pmi(u1,u2) = log(n11 / n1dot * ndot1)
+   * lmi(u1,u2) = n11 x pmi(u1,u2)
+   * pmi(u1,u2) = log(p(u1,u2) / p(u1) x p(u2))
+   *            = log( n11 x n / n1dot x ndot2 )
+   *            = (log(n11) + log(n)) - (log(n1dot) + log(ndot1))
    *
    * @param ct2
    * @return
    */
   def lmi(ct2:CT2):Double = {
-    val pmi = log(ct2.n11) - ((log(ct2.n1dot) + log(ct2.ndot1)))
+    val pmi = (log(ct2.n11) + log(ct2.n)) - (log(ct2.n1dot) + log(ct2.ndot1))
     val lmi = ct2.n11 * pmi
     return lmi
   }
