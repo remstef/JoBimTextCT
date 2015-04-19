@@ -52,6 +52,8 @@ case class CT2(u1:String, u2:String, var n11:Double, var n12:Double, var n21:Dou
 
   def n1dot = n11 + n12
   def ndot1 = n11 + n21
+  def n2dot = n21 + n22
+  def ndot2 = n12 + n22
   def n = n11 + n12 + n21 + n22
 
   def o11 = 1d
