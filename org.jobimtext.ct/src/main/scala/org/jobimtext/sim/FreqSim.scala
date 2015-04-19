@@ -19,6 +19,7 @@
 package org.jobimtext.sim
 
 import org.apache.spark.rdd.RDD
+import org.apache.spark.SparkContext._
 
 /**
  * Created by Steffen Remus.
@@ -49,7 +50,6 @@ object FreqSim {
    */
   def freqsim(data_in:RDD[(String,String, String, Long, Long)]):RDD[(String, String, Long)] = {
     val freqsims = data_in
-      .filter(t => t._4 > 0 && t._5 > 0) // remove zero overlap (should already be the case)
       .map({case (e1,e2,f,freq1,freq2) => ((e1,e2), 1l)})
       .reduceByKey(_+_) // (r,c) => (r+c)
       .map({case ((u1,u2), freqsim) => (u1,u2,freqsim)})

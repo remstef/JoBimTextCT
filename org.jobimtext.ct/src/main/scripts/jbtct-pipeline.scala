@@ -1,5 +1,3 @@
-import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow}
-
 /*
  *
  *  Copyright 2015.
@@ -65,6 +63,7 @@ try {
 
 //  import relevant stuff
 import org.jobimtext.{ct2, sim}
+import org.jobimtext.extract._
 import org.jobimtext.misc._
 
 // set the name of the app
@@ -77,7 +76,7 @@ val ctconf = Ctconf(
   max_odot1 = 1000,
   min_odot1 = 2,
   min_docs = 1,
-  min_sig = 0,
+  min_sig = 0, // Double.NegativeInfinity
   topn_f = 1000,
   topn_s = 200,
   min_sim = 2
@@ -107,7 +106,7 @@ ctsp.saveAsTextFile(out + "_2ctp")
 ctsp.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
 
 // compute, prune, take top n, save and peek significance scores from contingency tables
-var sgnfnc = ct2.sig.FreqFromCT(ctsp) // ct2.sig.ProbsFromCT(ctsp) // ct2.sig.LMIFromCT(ctsp) //
+var sgnfnc = ct2.sig.LMIFromCT(ctsp) // ct2.sig.FreqFromCT(ctsp) // ct2.sig.ProbsFromCT(ctsp)
 sgnfnc = Prune.pruneByValue(ctconf.filterBySignificance, sgnfnc)
 sgnfnc = TakeTopN(n = ctconf.topn_f, descending = true, sortbykey = false, sgnfnc)
 sgnfnc.saveAsTextFile(out + "_3lmi")

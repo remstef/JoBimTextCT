@@ -19,6 +19,7 @@
 package org.jobimtext.misc
 
 import org.apache.spark.rdd.RDD
+import org.apache.spark.SparkContext._
 import org.jobimtext.util.{Util, FixedSizeTreeSet}
 
 /**
