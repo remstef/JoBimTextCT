@@ -47,7 +47,7 @@ object ProbsFromCT {
 
   /**
    *
-   * p(u2|u1) = n11/n1dot => \sum_u2 p(u2|u1) = p(u1) = n1dot
+   * p(u2|u1) = n11/n1dot => \sum_u2 p(u2|u1) = 1
    *
    * @param ct2
    * @return
