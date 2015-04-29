@@ -20,8 +20,10 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
+import org.jobimtext.ct2
 import org.jobimtext.misc.JoinBySharedFeaturesGrpBy
 import org.jobimtext.spark.SparkConfigured
+import org.jobimtext.util.FixedSizeTreeSet
 
 /**
  * Created by Steffen Remus.
@@ -38,7 +40,10 @@ object JoinBySharedFeaturesRunner extends SparkConfigured {
     val out = conf.getOption("out").getOrElse(throw new IllegalStateException("Missing output path. Specify with '-out=<dir>'."))
     val prune = conf.getOption("prune").getOrElse({println("Setting 'prune' to '%d'.".format(-1)); "-1"}).toInt
 
-    val sc = new SparkContext(conf.setAppName("JoBimTextCT"))
+    conf.setAppName("JoBimTextCT")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[ct2.CT2]))
+    val sc = new SparkContext(conf)
 
     run(sc, in, out, prune)
 

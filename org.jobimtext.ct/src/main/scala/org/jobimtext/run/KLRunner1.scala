@@ -20,11 +20,13 @@ package org.jobimtext.run
 
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
+import org.jobimtext.ct2
 import org.jobimtext.ct2.sig.ProbsFromCT
 import org.jobimtext.ct2.{ClassicToCT, AggregateCT}
 import org.jobimtext.misc.{JoinBySharedFeaturesGrpBy, TakeTopN, SimSortTopN_deleteme}
 import org.jobimtext.sim.KLDivergence
 import org.jobimtext.spark.SparkConfigured
+import org.jobimtext.util.FixedSizeTreeSet
 
 /**
  * Created by Steffen Remus.
@@ -45,7 +47,11 @@ object KLRunner1 extends SparkConfigured{
     val in = conf.getOption("in").getOrElse(throw new IllegalStateException("Missing input path. Specify with '-in=<file-or-dir>'."))
     val out = conf.getOption("out").getOrElse(throw new IllegalStateException("Missing output path. Specify with '-out=<dir>'."))
 
-    val sc = new SparkContext(conf.setAppName("JoBimTextCT"))
+    conf.setAppName("JoBimTextCT")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[ct2.CT2]))
+
+    val sc = new SparkContext(conf)
 
     val kl = run(sc,in,out,cp,topnfeatures,prune,sort_out)
 

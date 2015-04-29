@@ -27,6 +27,9 @@ import scala.util.Try
 object TestRunner {
 
   def main(args: Array[String]) {
+    val t_ = "-Infinity".toDouble
+    println(t_)
+
     val t = ("a", "b", 1, 2, 3, 4)
     val f = "%s\t"*t.productArity
     print(f)

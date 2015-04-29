@@ -58,7 +58,7 @@ case class Ctconf(min_ndot1:Double = 2,
   /**
    *
    * @param ct2
-   * @return according to scala filter predicate function: return true if the current ct should be kept, false if it should be filtered
+   * @return similar to scala filter predicate function: return true if the current ct should be kept, false if it should be filtered
    */
   def filterCT(ct2:CT2):Boolean =
     (ct2.ndot1 >= min_ndot1)  &&
@@ -79,3 +79,24 @@ case class Ctconf(min_ndot1:Double = 2,
   }
 
 }
+
+
+object Ctconf {
+
+  val noFilter = Ctconf(1,1,1,Double.MaxValue,1,-Double.MaxValue,Int.MaxValue,Int.MaxValue,-Int.MaxValue,1)
+
+  val default = Ctconf(
+    min_ndot1 = 2,
+    min_n1dot = 2,
+    min_n11 = 2,
+    max_odot1 = 1000,
+    min_odot1 = 2,
+    min_docs = 1,
+    min_sig = 0, // Double.NegativeInfinity
+    topn_f = 1000,
+    topn_s = 200,
+    min_sim = 2
+  )
+
+}
+

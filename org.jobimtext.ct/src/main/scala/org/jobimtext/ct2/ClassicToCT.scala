@@ -88,6 +88,7 @@ object ClassicToCT {
     val coocc = lines_in.map(line => line.split("\t", 3))
       .map({case Array(u1, u2, n11) => ((u1, u2), n11.toDouble)})
       .reduceByKey((v1,v2) => v1 + v2)
+    coocc.cache()
 
     val u1occ = coocc.map({case ((u1, u2), n11) => (u1, (n11,1d))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2))
@@ -100,6 +101,8 @@ object ClassicToCT {
       .map({case (u1, ((u2,n11),(n1dot,o1dot))) => (u2, (u1, n11, (n1dot,o1dot)))})
       .join(u2occ) /* (c,((a,n11,(n1dot,o1dot)),(ndot1,odot1))) */
       .map({case (u2, ((u1,n11,(n1dot,o1dot)), (ndot1,odot1))) => (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) )})
+
+    coocc.unpersist()
 
     val n = joined.map({case (u1, u2, n11, n1dot, ndot1) => n11}).sum()
     val o = joined.count().toDouble

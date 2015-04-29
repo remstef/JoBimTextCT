@@ -31,49 +31,50 @@ import scala.reflect.internal.util.Collections
 object NgramWithHole {
 
   def apply(n:Int = 3, allcombinations:Boolean = false, lines_in:RDD[String]):RDD[String] = {
-    if(allcombinations)
-      return lines_in.flatMap(getAllCombinations(_,n))
-    else
-      return lines_in.flatMap(getCenterCombinations(_,n))
+
+    def fun(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = if (allcombinations) getAllCombinations(id, tokens, n) else getCenterCombinations(id,tokens,n)
+
+    val lines_out = lines_in.map(line => (line.hashCode, line.split(' ')))
+      .filter(_._2.length >= n)
+      .map({case (id, tokens) => fun(id, tokens, n)})
+      .flatMap(triples => triples.map(triple => "%s\t%s\t%s".format(triple._1, triple._2, triple._3)))
+    return lines_out
+
   }
 
-  def getCenterCombinations(line:String, n:Int=3):TraversableOnce[String] = {
-
-    val id = Integer.toHexString(line.hashCode)
-    val tokens = line.split(' ')
-    if(tokens.size < n)
-      return Traversable.empty // FIXME: too short sequences are currently ignored
+  def getCenterCombinations(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = {
     val ngrams = tokens.sliding(n).map(_.toSeq)
     val m = n/2
 
     val result_ngram_limits_begin = for (i <- 0 until min(m, tokens.length))
-      yield "%s\t%s\t%s".format(tokens(i), "%s @ %s".format(tokens.slice(0, i).mkString(" "), tokens.slice(i+1,n).mkString(" ")).trim, id)
+      yield (tokens(i), "%s @ %s".format(tokens.slice(0, i).mkString(" "), tokens.slice(i+1,n).mkString(" ")).trim, id)
 
     val result_ngram_limits_end = for (i <- max(tokens.length-m,0) until tokens.length)
-      yield "%s\t%s\t%s".format(tokens(i), "%s @ %s".format(tokens.slice(tokens.length-n, i).mkString(" "), tokens.slice(i+1, tokens.length).mkString(" ")).trim, id)
+      yield (tokens(i), "%s @ %s".format(tokens.slice(tokens.length-n, i).mkString(" "), tokens.slice(i+1, tokens.length).mkString(" ")).trim, id)
 
-    val result_ngram_center = ngrams.map(ngram => "%s\t%s\t%s".format(ngram(m), "%s @ %s".format(ngram.take(m).mkString(" "), ngram.takeRight(n-1-m).mkString(" ")).trim(), id))
+    val result_ngram_center = ngrams.map(ngram => (ngram(m), "%s @ %s".format(ngram.take(m).mkString(" ").trim, ngram.takeRight(n-1-m).mkString(" ")).trim, id))
 
     return result_ngram_limits_begin++result_ngram_center++result_ngram_limits_end
 
   }
 
-  def getAllCombinations(line:String, n:Int=3):TraversableOnce[String] = {
-    val id = Integer.toHexString(line.hashCode)
-    val tokens = line.split(' ')
-    if(tokens.size < n)
-      return Traversable.empty // FIXME: too short sequences are currently ignored
+
+  def getAllCombinations(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = {
     val ngrams = tokens.sliding(n).map(_.toSeq)
     ngrams.flatMap(ngram =>
       for (i <- 0 until ngram.length)
-        yield "%s\t%s\t%s".format(ngram(i), "%s @ %s".format(ngram.take(i).mkString(" "), ngram.takeRight(n-1-i).mkString(" ")).trim(), id)
+        yield (ngram(i), "%s @ %s".format(ngram.take(i).mkString(" ").trim, ngram.takeRight(n-1-i).mkString(" ")).trim(), id)
     )
   }
 
 
   def main(args: Array[String]) {
-    NgramWithHole.getAllCombinations("a b c",3).foreach(println(_))
+    NgramWithHole.getAllCombinations(1,"a b c".split(' '),3).foreach(println(_))
     println("---")
-    NgramWithHole.getCenterCombinations("a b c",3).foreach(println(_))
+    NgramWithHole.getAllCombinations(1,"a b c d e".split(' '),3).foreach(println(_))
+    println("---")
+    NgramWithHole.getCenterCombinations(1,"a b c".split(' '),3).foreach(println(_))
+    println("---")
+    NgramWithHole.getCenterCombinations(1,"a b c d e".split(' '),3).foreach(println(_))
   }
 }

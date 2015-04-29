@@ -18,6 +18,7 @@
 
 package org.jobimtext.util
 
+import scala.collection.TraversableOnce
 import scala.collection.mutable.TreeSet
 
 
@@ -46,6 +47,12 @@ class FixedSizeTreeSet[A](val maxsize:Int)(override implicit val ordering: Order
       super.-=(last)
     }
     return super.+=(elem)
+  }
+
+
+  override def ++=(xs: TraversableOnce[A]): this.type = {
+    xs.seq.foreach(this += _)
+    return this
   }
 
 }

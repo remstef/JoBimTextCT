@@ -25,6 +25,12 @@
 					<include>**/*.scala</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*</include>
+				</includes>
+			</resource>
 		</resources>
 
 		<testResources>
@@ -32,6 +38,12 @@
 				<directory>src/test/scala</directory>
 				<includes>
 					<include>**/*.scala</include>
+				</includes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<includes>
+					<include>**/*</include>
 				</includes>
 			</testResource>
 		</testResources>
@@ -95,7 +107,14 @@
 			<!--<scope>provided</scope>-->
 			<!--<optional>true</optional>-->
 		</dependency>
-		
+
+		<dependency>
+			<groupId>com.twitter</groupId>
+			<artifactId>util-eval_2.10</artifactId>
+			<version>6.23.0</version>
+		</dependency>
+
+
 		<!--<dependency>-->
 		  <!--<groupId>org.scalanlp</groupId>-->
 		    <!--<artifactId>breeze_2.10</artifactId>-->

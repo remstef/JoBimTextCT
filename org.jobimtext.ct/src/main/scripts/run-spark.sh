@@ -5,6 +5,7 @@ YARN_CONF_DIR=/etc/hadoop/conf.cloudera.yarn/
 
 ##
 #
+#
 #  spark-shell --master yarn --jars jbtct/ct-0.0.1.jar --queue testing --num-executors 100 -i <script.scala>
 #
 #  spark-shell --master yarn --jars jbtct/ct-0.0.1.jar jbtct/breeze_2.11-0.10.jar --queue testing --num-executors 100
@@ -17,6 +18,11 @@ YARN_CONF_DIR=/etc/hadoop/conf.cloudera.yarn/
 # kyroserializer
 # defaultparallelism
 # vm.max_map_count to 12800000 (os setting) (https://my.vertica.com/docs/4.1/HTML/Master/12962.htm)
+# --conf spark.ui.port=4040
+# conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+# -XX:+UseCompressedOops
+# conf.set("spark.storage.memoryFraction", "0.5")
+# spark.default.parallelism 2-3 task per cpu
 #  
 ##
 $class=org.jobimtext.run

@@ -22,10 +22,11 @@ import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext._
-import org.jobimtext.ct2.{AggregateCT, ClassicToCT}
+import org.jobimtext.ct2.{CT2, AggregateCT, ClassicToCT}
 import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow, CooccurrenceSentence}
-import org.jobimtext.misc.{Ctconf, Prune, TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.misc._
 import org.jobimtext.sim._
+import org.jobimtext.util.FixedSizeTreeSet
 
 /**
  * Created by Steffen Remus.
@@ -44,10 +45,14 @@ object TestRunnerSpark {
       .setAppName("SparkTestRunner")
       .setMaster("local[*]")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
+//      .set("spark.kryo.classesToRegister", "org.jobimtext.util.FixedSizeTreeSet,org.jobimtext.ct2.CT2")
+
 
     val sc = new SparkContext(conf);
 
-    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty)
+    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty).coalesce(sc.defaultParallelism)
 //    val lines_out =
 //      SimSortTopN(10,false,
 //        KLDivergenceRdcBy(
@@ -68,22 +73,23 @@ object TestRunnerSpark {
 //      )
 
     val lines_out =
-//      SimSortTopN(10,false,
+      TakeTopN(10,true,true,
 //        KLDivergenceRdcBy(
-//          JoinBySharedFeaturesGrpBy(-1,
-//            TakeTopN(2, true,
-//              ct2.LMIFromCT(
-                  ct2.AggregateCT.classic(
+        FreqSim(
+          JoinBySharedFeaturesGrpBy(-1,
+            TakeTopN(100, true, false,
+               ct2.sig.LMIFromCT(
+                  ct2.AggregateCT.classic(Ctconf.default,
                     ClassicToCT(
 //                      CooccurrenceWindow(100,lines_in)
                       NgramWithHole(3,false,lines_in)
                     )
                   )
-//              )
-//            )
-//          )
-//        )
-//      )
+                )
+            )
+          )
+        )
+      )
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
 
 
@@ -101,6 +107,9 @@ object TestRunnerSpark {
       .setAppName("SparkTestRunner")
       .setMaster("local[*]")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
+      .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
+
 
     val prunconf = Ctconf(min_n11 = 1, min_n1dot = 1, min_ndot1 = 1,min_odot1 = 1)
 
@@ -130,7 +139,7 @@ object TestRunnerSpark {
 //            TakeTopN(1,true,
 //              ct2.ProbsFromCT(
 //                Prune.pruneCT(prunconf.filterCT,
-                  ct2.AggregateCT.classic(
+                  ct2.AggregateCT.classic(Ctconf.default,
                     ClassicToCT(lines_in)
                   )
 //                )

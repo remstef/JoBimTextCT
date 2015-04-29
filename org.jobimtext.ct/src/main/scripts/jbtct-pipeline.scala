@@ -62,12 +62,24 @@
 try {
 
 //  import relevant stuff
+import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.{ct2, sim}
 import org.jobimtext.extract._
 import org.jobimtext.misc._
+import org.jobimtext.util.FixedSizeTreeSet
 
 // set the name of the app
-sc.getConf.setAppName("jbtct")
+//var sc:SparkContext = null;
+//try{
+  val sc = new SparkContext(new SparkConf().set("spark.driver.allowMultipleContexts", "true"))
+//}
+
+
+// set the name of the app
+sc.getConf
+  .setAppName("jbtct")
+  .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+  .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[ct2.CT2]))
 
 val ctconf = Ctconf(
   min_ndot1 = 2,
@@ -83,8 +95,8 @@ val ctconf = Ctconf(
 )
 
 // set input and output paths
-val in = "input-dir-or-file" // "src/test/files/samplesentences_2.txt"
-val out = "output-dir" // "out-samplesentences2.txt"
+val in = "src/test/files/samplesentences_2.txt" //"input-dir-or-file" //
+val out = "out1-samplesentences2.txt" // "output-dir" //
 
 // read non empty lines from input dir or file
 val lines_in = sc.textFile(in).filter(_.nonEmpty)
@@ -96,14 +108,14 @@ val coocs = NgramWithHole(n=3, allcombinations=true, lines_in) // CooccurrenceWi
 //val coocs = sc.textFile(in).filter(_.nonEmpty)
 
 // compute, save and peek into aggregated contingency tables
-val cts = ct2.AggregateCT.classic(ct2.ClassicToCT(coocs))
-cts.saveAsTextFile(out + "_1ct")
-cts.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
+val ctsp = ct2.AggregateCT.classic(ctconf, ct2.ClassicToCT(coocs))
+ctsp.saveAsTextFile(out + "_1ctp")
+ctsp.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
 
 // compute, save and peek into aggregated contingency tables
-val ctsp = Prune.pruneCT(ctconf.filterCT, cts)
-ctsp.saveAsTextFile(out + "_2ctp")
-ctsp.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
+//val ctsp = Prune.pruneCT(ctconf.filterCT, cts)
+//ctsp.saveAsTextFile(out + "_2ctp")
+//ctsp.takeSample(withReplacement = false, num = 10, seed = 42l).foreach(println(_))
 
 // compute, prune, take top n, save and peek significance scores from contingency tables
 var sgnfnc = ct2.sig.LMIFromCT(ctsp) // ct2.sig.FreqFromCT(ctsp) // ct2.sig.ProbsFromCT(ctsp)
@@ -128,3 +140,5 @@ smlr.saveAsTextFile(out + "_5sim")
     e.printStackTrace()
     println("Something's wrong! (%s: %s)".format(e.getClass.getSimpleName, e.getMessage))
 }
+
+System.exit(0)
