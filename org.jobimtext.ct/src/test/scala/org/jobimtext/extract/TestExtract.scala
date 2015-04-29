@@ -28,6 +28,8 @@ object TestExtract {
   def main(args: Array[String]) {
     testCooccurrenceWindowOnSpark(5)
     testCooccurrenceWindow(5)
+    testCooccurrenceSentenceOnSpark
+    testCooccurrenceSentence
   }
 
   def testCooccurrenceSentenceOnSpark() {
@@ -40,7 +42,7 @@ object TestExtract {
 
     val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences.txt").filter(_.nonEmpty)
 
-    val lines_out = CooccurrenceSentence(lines_in)
+    val lines_out = CooccurrenceWindow(-1, lines_in)
     lines_out.foreach(line => println(line));
 
     sc.stop()
@@ -65,12 +67,13 @@ object TestExtract {
   }
 
   def testCooccurrenceSentence() {
-
+    def x = CooccurrenceWindow.getCooccurrencesAll(1L, "The quick brown fox jumps over the lazy dog".split(' '))
+    x.foreach(println(_))
   }
 
   def testCooccurrenceWindow(windowsize:Int) {
 
-    def x = CooccurrenceWindow.getCooccurrences("The quick brown fox jumps over the lazy dog", windowsize)
+    def x = CooccurrenceWindow.getCooccurrencesWindow(1L, "The quick brown fox jumps over the lazy dog".split(' '), windowsize)
     x.foreach(println(_))
 
   }

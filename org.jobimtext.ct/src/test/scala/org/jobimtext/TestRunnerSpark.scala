@@ -23,7 +23,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
 import org.jobimtext._
 import org.jobimtext.ct2.{CT2, AggregateCT, ClassicToCT}
-import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow, CooccurrenceSentence}
+import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow}
 import org.jobimtext.misc._
 import org.jobimtext.sim._
 import org.jobimtext.util.FixedSizeTreeSet
@@ -52,7 +52,7 @@ object TestRunnerSpark {
 
     val sc = new SparkContext(conf);
 
-    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty).coalesce(sc.defaultParallelism)
+    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty).repartition(sc.defaultParallelism)
 //    val lines_out =
 //      SimSortTopN(10,false,
 //        KLDivergenceRdcBy(

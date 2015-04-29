@@ -51,7 +51,7 @@ object JoinBySharedFeaturesCartesian {
   def join_shared_features(data_in:RDD[(String, String, Double)]):RDD[(String,String, String, Double, Double)] = {
     val data_out = data_in.cartesian(data_in) // less efficient than groupbykey, but parallalizable
       .filter({case ((e1,f1,l1),(e2,f2,l2)) => f1 == f2 && e1 != e2})
-      .coalesce(data_in.partitions.size) // TODO: this seems awkward, why is there no method to determine a good number of partitions
+      .repartition(data_in.sparkContext.defaultParallelism)
       .map({case ((e1,f1,l1),(e2,f2,l2)) => (e1,e2,f1,l1,l2)})
     return data_out
   }
