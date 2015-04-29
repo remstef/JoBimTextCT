@@ -67,13 +67,13 @@ object TestExtract {
   }
 
   def testCooccurrenceSentence() {
-    def x = CooccurrenceWindow.getCooccurrencesAll(1L, "The quick brown fox jumps over the lazy dog".split(' '))
+    def x = CooccurrenceWindow.getCooccurrencesAll("1", "The quick brown fox jumps over the lazy dog".split(' '))
     x.foreach(println(_))
   }
 
   def testCooccurrenceWindow(windowsize:Int) {
 
-    def x = CooccurrenceWindow.getCooccurrencesWindow(1L, "The quick brown fox jumps over the lazy dog".split(' '), windowsize)
+    def x = CooccurrenceWindow.getCooccurrencesWindow("1", "The quick brown fox jumps over the lazy dog".split(' '), windowsize)
     x.foreach(println(_))
 
   }

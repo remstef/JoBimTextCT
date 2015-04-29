@@ -27,16 +27,16 @@ object CooccurrenceWindow {
 
   def apply(windowsize:Int, lines_in:RDD[String]):RDD[String] = {
 
-    def fun(id:Long, tokens:Seq[String], w:Int):TraversableOnce[(String, String, Long)] = if (w < 0 || tokens.length <= w) getCooccurrencesAll(id, tokens) else getCooccurrencesWindow(id, tokens, w)
+    def fun(id:String, tokens:Seq[String], w:Int):TraversableOnce[(String, String, String)] = if (w < 0 || tokens.length <= w) getCooccurrencesAll(id, tokens) else getCooccurrencesWindow(id, tokens, w)
 
-    val lines_out = lines_in.map(line => (line.hashCode, line.split(' ')))
+    val lines_out = lines_in.map(line => (Integer.toHexString(line.hashCode), line.split(' ')))
       .map({case (id, tokens) => fun(id, tokens, windowsize)})
       .flatMap(triples => triples.map(triple => "%s\t%s\t%s".format(triple._1, triple._2, triple._3)))
     return lines_out
 
   }
 
-  def getCooccurrencesWindow(id:Long, tokens:Seq[String], windowsize:Int):TraversableOnce[(String, String, Long)] = {
+  def getCooccurrencesWindow(id:String, tokens:Seq[String], windowsize:Int):TraversableOnce[(String, String, String)] = {
     val windows = tokens.sliding(windowsize).map(_.toSeq)
     val windowsfinal = for (k <- 1 to windowsize-1) yield tokens.slice(tokens.length - k, tokens.length).toSeq
     val windowsall = windows++windowsfinal
@@ -45,7 +45,7 @@ object CooccurrenceWindow {
   }
 
 
-  def getCooccurrencesAll(id:Long, tokens:Seq[String]):TraversableOnce[(String, String, Long)] = {
+  def getCooccurrencesAll(id:String, tokens:Seq[String]):TraversableOnce[(String, String, String)] = {
     val triples = for(i <- 0 until tokens.length; j <- i+1 until tokens.length)
       yield Seq((tokens(i), tokens(j), id),(tokens(j),tokens(i),id))//  "%s\t%s\t%s\n%2$s\t%1$s\t%3$s".format(tokens(i), tokens(j), id)
     return triples.flatMap(triples => triples)

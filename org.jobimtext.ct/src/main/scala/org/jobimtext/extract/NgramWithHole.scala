@@ -32,9 +32,9 @@ object NgramWithHole {
 
   def apply(n:Int = 3, allcombinations:Boolean = false, lines_in:RDD[String]):RDD[String] = {
 
-    def fun(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = if (allcombinations) getAllCombinations(id, tokens, n) else getCenterCombinations(id,tokens,n)
+    def fun(id:String, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, String)] = if (allcombinations) getAllCombinations(id, tokens, n) else getCenterCombinations(id,tokens,n)
 
-    val lines_out = lines_in.map(line => (line.hashCode, line.split(' ')))
+    val lines_out = lines_in.map(line => (Integer.toHexString(line.hashCode), line.split(' ')))
       .filter(_._2.length >= n)
       .map({case (id, tokens) => fun(id, tokens, n)})
       .flatMap(triples => triples.map(triple => "%s\t%s\t%s".format(triple._1, triple._2, triple._3)))
@@ -42,7 +42,7 @@ object NgramWithHole {
 
   }
 
-  def getCenterCombinations(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = {
+  def getCenterCombinations(id:String, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, String)] = {
     val ngrams = tokens.sliding(n).map(_.toSeq)
     val m = n/2
 
@@ -59,7 +59,7 @@ object NgramWithHole {
   }
 
 
-  def getAllCombinations(id:Long, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, Long)] = {
+  def getAllCombinations(id:String, tokens:Seq[String], n:Int=3):TraversableOnce[(String, String, String)] = {
     val ngrams = tokens.sliding(n).map(_.toSeq)
     ngrams.flatMap(ngram =>
       for (i <- 0 until ngram.length)
@@ -69,12 +69,12 @@ object NgramWithHole {
 
 
   def main(args: Array[String]) {
-    NgramWithHole.getAllCombinations(1,"a b c".split(' '),3).foreach(println(_))
+    NgramWithHole.getAllCombinations("1","a b c".split(' '),3).foreach(println(_))
     println("---")
-    NgramWithHole.getAllCombinations(1,"a b c d e".split(' '),3).foreach(println(_))
+    NgramWithHole.getAllCombinations("1","a b c d e".split(' '),3).foreach(println(_))
     println("---")
-    NgramWithHole.getCenterCombinations(1,"a b c".split(' '),3).foreach(println(_))
+    NgramWithHole.getCenterCombinations("1","a b c".split(' '),3).foreach(println(_))
     println("---")
-    NgramWithHole.getCenterCombinations(1,"a b c d e".split(' '),3).foreach(println(_))
+    NgramWithHole.getCenterCombinations("1","a b c d e".split(' '),3).foreach(println(_))
   }
 }
