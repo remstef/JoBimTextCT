@@ -31,10 +31,15 @@ object FreqSim {
    * @param lines_in (u1,u2,f,freq1,freq2)
    * @return (u1,u2,freqsim)
    */
-  def apply(lines_in:RDD[String]):RDD[String] = {
+  def apply(with_features:Boolean = false, lines_in:RDD[String]):RDD[String] = {
     val joined_frequencies_shared_features = repr(lines_in)
+    if(with_features) {
+      val freqsims = freqsim_with_features(joined_frequencies_shared_features)
+      val lines_out = freqsims.map({ case (u1, u2, count, feats) => "%s\t%s\t%d\t%s".format(u1, u2, count, feats) })
+      return lines_out
+    }
     val freqsims = freqsim(joined_frequencies_shared_features)
-    val lines_out = freqsims.map({case (u1,u2,freqsim) => "%s\t%s\t%d".format(u1,u2,freqsim)})
+    val lines_out = freqsims.map({ case (u1, u2, freqsim) => "%s\t%s\t%d".format(u1, u2, freqsim) })
     return lines_out
   }
 
@@ -53,6 +58,19 @@ object FreqSim {
       .map({case (e1,e2,f,freq1,freq2) => ((e1,e2), 1l)})
       .reduceByKey(_+_) // (r,c) => (r+c)
       .map({case ((u1,u2), freqsim) => (u1,u2,freqsim)})
+    return freqsims
+  }
+
+  /**
+   * compute similarity based on the number of shared features: freqsim(p,q) = sum_x p(x) && q(x)
+   * @param data_in
+   * @return
+   */
+  def freqsim_with_features(data_in:RDD[(String,String, String, Long, Long)]):RDD[(String, String, Long, String)] = {
+    val freqsims = data_in
+      .map({case (e1,e2,f,freq1,freq2) => ((e1,e2), (1l, f))})
+      .reduceByKey((r,c) =>  (r._1+c._1, r._2+", "+c._2)) // (r,c) => (r+c)
+      .map({case ((u1,u2), (count, feats)) => (u1,u2,count,feats)})
     return freqsims
   }
 

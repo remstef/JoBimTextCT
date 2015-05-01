@@ -73,9 +73,9 @@ object TestRunnerSpark {
 //      )
 
     val lines_out =
-      TakeTopN(10,true,true,
+//      TakeTopN(10,true,true,
 //        KLDivergenceRdcBy(
-        FreqSim(
+        FreqSim(with_features = true,
           JoinBySharedFeaturesGrpBy(-1,
             TakeTopN(100, true, false,
                ct2.sig.LMIFromCT(
@@ -89,7 +89,7 @@ object TestRunnerSpark {
             )
           )
         )
-      )
+//      )
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
 
 
