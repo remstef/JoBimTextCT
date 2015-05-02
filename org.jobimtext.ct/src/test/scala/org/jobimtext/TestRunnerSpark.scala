@@ -73,7 +73,7 @@ object TestRunnerSpark {
 //      )
 
     val lines_out =
-//      TakeTopN(10,true,true,
+      TakeTopN(10,true,true,
 //        KLDivergenceRdcBy(
         FreqSim(with_features = true,
           JoinBySharedFeaturesGrpBy(-1,
@@ -89,14 +89,14 @@ object TestRunnerSpark {
             )
           )
         )
-//      )
+      )
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
 
 
 //    val lines_out = SimSortTopN(10,false,sc.textFile("org.jobimtext.ct/local_data/samplesent_kl"))
 //    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesent_kls");
 
-    lines_out.sortBy(x => x).foreach(line => println(line));
+    lines_out.foreach(line => println(line));
 
     sc.stop();
   }

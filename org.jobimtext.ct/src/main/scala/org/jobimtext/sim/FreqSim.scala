@@ -69,7 +69,7 @@ object FreqSim {
   def freqsim_with_features(data_in:RDD[(String,String, String, Long, Long)]):RDD[(String, String, Long, String)] = {
     val freqsims = data_in
       .map({case (e1,e2,f,freq1,freq2) => ((e1,e2), (1l, f))})
-      .reduceByKey((r,c) =>  (r._1+c._1, r._2+", "+c._2)) // (r,c) => (r+c)
+      .reduceByKey((r,c) =>  (r._1+c._1, r._2+"\t"+c._2)) // (r,c) => (r+c)
       .map({case ((u1,u2), (count, feats)) => (u1,u2,count,feats)})
     return freqsims
   }

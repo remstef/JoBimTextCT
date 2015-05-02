@@ -27,8 +27,8 @@ import org.jobimtext.util.{Util, FixedSizeTreeSet}
  */
 object TakeTopN {
 
-  val ord = new Ordering[(String, Double)] {
-    def compare(o1:(String, Double), o2:(String, Double)): Int = {
+  val ord = new Ordering[(String, Double, Object)] {
+    def compare(o1:(String, Double, Object), o2:(String, Double, Object)): Int = {
       val r = o1._2.compareTo(o2._2)
       if(r != 0)
         return r
@@ -36,12 +36,9 @@ object TakeTopN {
     }
   }
 
-  val ord_rev = new Ordering[(String, Double)] {
-    def compare(o1:(String, Double), o2:(String, Double)): Int = {
-      val r = o2._2.compareTo(o1._2)
-      if(r != 0)
-        return r
-      return o1._1.compareTo(o2._1)
+  val ord_rev = new Ordering[(String, Double, Object)] {
+    def compare(o1:(String, Double, Object), o2:(String, Double, Object)): Int = {
+      return ord.compare(o2,o1)
     }
   }
 
@@ -54,7 +51,7 @@ object TakeTopN {
   def apply(n:Int, descending:Boolean, sortbykey:Boolean = false, lines_in:RDD[String]):RDD[String] = {
 
     var inner_sorted = lines_in.map(_.split("\t"))
-      .map({case Array(e1,e2,value) => (e1, (e2, value.toDouble), FixedSizeTreeSet.empty(if (descending) ord_rev else ord, n))})
+      .map({ case Array(e1,e2,value,x @ _*) => (e1, (e2, value.toDouble, if (x.length > 0) x.mkString("\t") else null), FixedSizeTreeSet.empty(if (descending) ord_rev else ord, n))})
       .map({case (o1,tupl,sortedset) => (o1, (sortedset+=(tupl)))})
       .reduceByKey((r,c) => (r++=(c)))
 
@@ -62,8 +59,8 @@ object TakeTopN {
       inner_sorted = inner_sorted.sortByKey()
 
     val lines_out = inner_sorted
-      .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim) => (o1,o2,sim)})})
-      .map({case (o1,o2,sim) => "%s\t%s\t%s".format(o1,o2,Util.format(sim))})
+      .flatMap({case(o1, s) => s.toSeq.map({case (o2,sim,x) => (o1,o2,sim,x)})})
+      .map({case (o1,o2,sim,x) => "%s\t%s\t%s".format(o1,o2,Util.format(sim) + (if (x != null) "\t%s".format(x) else ""))})
 
     return lines_out
 
