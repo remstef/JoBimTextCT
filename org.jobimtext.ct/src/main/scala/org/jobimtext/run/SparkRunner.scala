@@ -23,7 +23,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.ct2
 import org.jobimtext.ct2.ClassicToCT
 import org.jobimtext.ct2.sig.ProbsFromCT
-import org.jobimtext.misc.{JoinBySharedFeaturesCartesian, TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.misc.{JoinBySharedFeaturesCartesian, TakeTopN}
 import org.jobimtext.sim._
 import org.jobimtext.spark.SparkConfigured
 import org.jobimtext.util.FixedSizeTreeSet

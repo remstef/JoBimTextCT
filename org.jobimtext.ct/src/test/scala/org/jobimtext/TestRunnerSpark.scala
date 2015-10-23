@@ -52,7 +52,9 @@ object TestRunnerSpark {
 
     val sc = new SparkContext(conf);
 
-    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty).repartition(sc.defaultParallelism)
+//    val lines_in = sc.textFile("org.jobimtext.ct/src/test/files/samplesentences_2.txt").filter(_.nonEmpty).repartition(sc.defaultParallelism)
+    val lines_in = sc.textFile("/Volumes/ExtendedHD/Users/stevo/Documents/corpora/simplewiki/simplewikipedia_sent_tok.txt").filter(_.nonEmpty).repartition(sc.defaultParallelism)
+
 //    val lines_out =
 //      SimSortTopN(10,false,
 //        KLDivergenceRdcBy(
@@ -72,31 +74,57 @@ object TestRunnerSpark {
 //        )
 //      )
 
-    val lines_out =
-      TakeTopN(10,true,true,
-//        KLDivergenceRdcBy(
-        FreqSim(with_features = true,
-          JoinBySharedFeaturesGrpBy(-1,
-            TakeTopN(100, true, false,
-               ct2.sig.LMIFromCT(
-                  ct2.AggregateCT.classic(Ctconf.default,
-                    ClassicToCT(
-//                      CooccurrenceWindow(100,lines_in)
-                      NgramWithHole(3,false,lines_in)
-                    )
-                  )
-                )
-            )
-          )
-        )
-      )
+//    val lines_out =
+//      TakeTopN(10,true,true,
+////        KLDivergenceRdcBy(
+//        FreqSim(with_features = true,
+//          JoinBySharedFeaturesGrpBy(-1,
+//            TakeTopN(100, true, false,
+//               ct2.sig.LMIFromCT(
+//                  ct2.AggregateCT.classic(Ctconf.default,
+//                    ClassicToCT(
+////                      CooccurrenceWindow(100,lines_in)
+//                      NgramWithHole(3,false,lines_in)
+//                    )
+//                  )
+//                )
+//            )
+//          )
+//        )
+//      )
     //lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesentences_kls");
 
+    val ctconf = Ctconf(
+      min_ndot1 = 2, // min occurrences jo
+      min_n1dot = 2, // min occurrences bim
+      min_n11 = 2, // min occurrences jo-bim
+      max_odot1 = 1000000000, // max different occurrences jo
+      min_odot1 = 1, // min different occurrences jo
+      min_docs = 1, // min docs
+      min_sig = Double.NegativeInfinity,
+      topn_f = 1000, // take top n contexts per jo
+      topn_s = 100, // take top n similar jos per jo
+      min_sim = 2
+    )
 
-//    val lines_out = SimSortTopN(10,false,sc.textFile("org.jobimtext.ct/local_data/samplesent_kl"))
-//    lines_out.saveAsTextFile("org.jobimtext.ct/local_data/samplesent_kls");
+    val lines_out =
+      TakeTopN(100,true,true,
+        FreqSim(with_features = false,
+          JoinBySharedFeaturesGrpBy(-1,
+              ct2.sig.FreqFromCT(
+                ct2.AggregateCT.classic(ctconf,
+                  ClassicToCT(
+                    NgramWithHole(3,false,lines_in)
+                  )
+                )
+              )
+            )
+          )
+      )
 
-    lines_out.foreach(line => println(line));
+    lines_out.saveAsTextFile("/Volumes/ExtendedHD/Users/stevo/Workspaces/flink-test/flink_quickstart/spark");
+
+//    lines_out.foreach(line => println(line));
 
     sc.stop();
   }

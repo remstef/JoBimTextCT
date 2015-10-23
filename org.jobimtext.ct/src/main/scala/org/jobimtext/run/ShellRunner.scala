@@ -22,7 +22,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.ct2.ClassicToCT
 import org.jobimtext.extract.CooccurrenceWindow
-import org.jobimtext.misc.{TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.misc.TakeTopN
 import org.jobimtext.sim._
 import org.jobimtext.spark.SparkConfigured
 

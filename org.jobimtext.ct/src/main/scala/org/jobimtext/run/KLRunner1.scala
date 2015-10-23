@@ -23,7 +23,7 @@ import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.ct2
 import org.jobimtext.ct2.sig.ProbsFromCT
 import org.jobimtext.ct2.{ClassicToCT, AggregateCT}
-import org.jobimtext.misc.{JoinBySharedFeaturesGrpBy, TakeTopN, SimSortTopN_deleteme}
+import org.jobimtext.misc.{JoinBySharedFeaturesGrpBy, TakeTopN}
 import org.jobimtext.sim.KLDivergence
 import org.jobimtext.spark.SparkConfigured
 import org.jobimtext.util.FixedSizeTreeSet
