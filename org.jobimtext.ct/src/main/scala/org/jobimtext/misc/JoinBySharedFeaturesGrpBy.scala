@@ -48,14 +48,30 @@ object JoinBySharedFeaturesGrpBy {
       .map({ case Array(e, f, value) => (e, f, value.toDouble) })
   }
 
+
+  val ord = new Ordering[(String, Double)] {
+    def compare(o1:(String, Double), o2:(String, Double)): Int = {
+      val r = o1._2.compareTo(o2._2)
+      if(r != 0)
+        return r
+      return o1._1.compareTo(o2._1)
+    }
+  }
+
+  val ord_rev = new Ordering[(String, Double)] {
+    def compare(o1:(String, Double), o2:(String, Double)): Int = {
+      return ord.compare(o2,o1)
+    }
+  }
+
   /**
    *
    * @param data_in (e,f,value)
    * @return (f,e1,e2,value1,value2)
    */
   def join_pruned_shared_features(data_in: RDD[(String, String, Double)], prune:Int): RDD[(String, String, String, Double, Double)] = {
-    val data_out = data_in.map({ case (e, f, value) => (f, (e, value, FixedSizeTreeSet.empty(TakeTopN.ord_rev, prune))) }) // TODO: move ordering somewhere else
-      .map({case (f, (e, value, s)) => (f, (s+=((e, value))))})
+    val data_out = data_in.map({ case (e, f, value) => (f, (e, value, FixedSizeTreeSet.empty[(String, Double)](ord_rev, prune))) }) // TODO: move ordering somewhere else
+      .map({case (f, (e, value, s)) => (f, ( s+=((e, value))))})
       .reduceByKey((r,c) => r++=c)
       .map({ case (f, group) => join_shared_features_local(f, group)})
       .flatMap(x => x)
