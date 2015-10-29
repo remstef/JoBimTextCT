@@ -36,8 +36,7 @@ object TestRunnerSpark {
   def main(args: Array[String]) {
 
     val conf = new SparkConf()
-      .setAppName("SparkTestRunner")
-      .setMaster("local[*]")
+      .setAppName("App")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
@@ -45,7 +44,7 @@ object TestRunnerSpark {
 
     val sc = new SparkContext(conf);
 
-    val lines_in = sc.textFile("rem/simplewikipedia/in").filter(_.nonEmpty).filter(_.contains("car")).repartition(sc.defaultParallelism)
+    val lines_in = sc.textFile("/user/hadoop/rem/simplewikipedia/in").filter(_.nonEmpty).repartition(sc.defaultParallelism)
 
     val ctconf = Ctconf(
       min_ndot1 = 2, // min occurrences jo
