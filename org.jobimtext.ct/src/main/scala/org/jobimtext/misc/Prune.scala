@@ -27,7 +27,7 @@ import org.jobimtext.util.Util
  */
 object Prune {
 
-  def pruneCT(filterfun: CT2 => Boolean = (CT2) => true, lines_in:RDD[String]):RDD[String] = {
+  def pruneCT(filterfun: CT2[String] => Boolean = (CT2) => true, lines_in:RDD[String]):RDD[String] = {
 
     val values = lines_in.map(line => CT2.fromString(line))
       .filter(filterfun)

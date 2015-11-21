@@ -66,15 +66,15 @@ object AggregateCT {
 
     // forget about n12,n21 and so on, since we only need n11
     val coocc = lines_in.map(line => line.split("\t", 5))
-      .map({case Array(docid,u1, u2, n11,rest) => ((u1, u2), (n11.toDouble, 1l))})
+      .map({case Array(docid,u1, u2, n11,rest) => ((u1, u2), (n11.toFloat, 1))})
       .reduceByKey((r,c) => (r._1 + c._1, r._2 + c._2)) // (u1,u2),(n11,ndocs)
     coocc.cache()
 
-    val u1occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u1, (n11,1d))})
+    val u1occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u1, (n11,1f))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2)) // (u1),(n1dot,o1dot)
       .filter({case ((u1),(n1dot,o1dot)) => n1dot >= ctconf.min_n1dot})
 
-    val u2occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u2, (n11,1d))})
+    val u2occ = coocc.map({case ((u1, u2), (n11, ndocs)) => (u2, (n11,1f))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2)) //(u2),(ndot1,odot1)
       .filter({case ((u2),(ndot1,odot1)) => ndot1 >= ctconf.min_ndot1 && odot1 >= ctconf.min_odot1 && odot1 <= ctconf.max_odot1})
 
@@ -87,10 +87,15 @@ object AggregateCT {
 
     coocc.unpersist()
 
-    val n = joined.map({case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1)) => n11}).sum()
-    val o = joined.count().toDouble
+    val n_ = joined.map({case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1)) => n11}).sum()
+    var n = 1f
+    if(n_ > Float.MaxValue)
+      n = Float.MaxValue
+    else
+      n = n_.toFloat
+    val o = joined.count().toFloat
 
-    val lines_out = joined.map({ case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, ndocs).toString()})
+    val lines_out = joined.map({ case (u1, u2, ndocs, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1f, odot1-1f, o-o1dot-odot1+1f, ndocs).toString()})
 
     return lines_out;
 

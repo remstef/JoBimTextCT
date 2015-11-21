@@ -46,7 +46,7 @@ object TestRunnerSpark {
       .setMaster("local[*]")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2[_]]))
 //      .set("spark.kryo.classesToRegister", "org.jobimtext.util.FixedSizeTreeSet,org.jobimtext.ct2.CT2")
 
 
@@ -136,7 +136,7 @@ object TestRunnerSpark {
       .setMaster("local[*]")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2[_]]))
 
 
     val prunconf = Ctconf(min_n11 = 1, min_n1dot = 1, min_ndot1 = 1,min_odot1 = 1)

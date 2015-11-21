@@ -60,7 +60,7 @@ case class Ctconf(min_ndot1:Double = 2,
    * @param ct2
    * @return similar to scala filter predicate function: return true if the current ct should be kept, false if it should be filtered
    */
-  def filterCT(ct2:CT2):Boolean =
+  def filterCT[T](ct2:CT2[T]):Boolean =
     (ct2.ndot1 >= min_ndot1)  &&
     (ct2.n1dot >= min_n1dot)  &&
     (ct2.n11 >= min_n11)      &&

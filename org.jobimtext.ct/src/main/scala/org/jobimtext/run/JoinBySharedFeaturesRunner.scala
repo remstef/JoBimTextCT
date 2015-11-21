@@ -42,7 +42,7 @@ object JoinBySharedFeaturesRunner extends SparkConfigured {
 
     conf.setAppName("JoBimTextCT")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[ct2.CT2]))
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[ct2.CT2[_]]))
     val sc = new SparkContext(conf)
 
     run(sc, in, out, prune)

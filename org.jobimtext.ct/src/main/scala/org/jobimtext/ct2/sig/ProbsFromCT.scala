@@ -52,7 +52,7 @@ object ProbsFromCT {
    * @param ct2
    * @return
    */
-  def getLog10ConditionalProbability(ct2:CT2):Double = {
+  def getLog10ConditionalProbability[T](ct2:CT2[T]):Double = {
     val log10prob = log10(ct2.n11) - log10(ct2.n1dot)
     return log10prob
   }
@@ -64,7 +64,7 @@ object ProbsFromCT {
    * @param ct2
    * @return
    */
-  def getLog10JointProbability(ct2:CT2):Double = {
+  def getLog10JointProbability[T](ct2:CT2[T]):Double = {
     val log10prob = log10(ct2.n11) - log10(ct2.n)
     return log10prob
   }

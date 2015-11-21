@@ -30,7 +30,7 @@ object ClassicToCT {
 
     val ct_per_doc = lines_in.map(line => line.split("\t", 4))
       /* {case Array(u1, u2, docid, rest) => ((docid, u1, u2), 1)} */
-      .map(arr => ((arr(2),arr(0),arr(1)), 1d))
+      .map(arr => ((arr(2),arr(0),arr(1)), 1f))
       .reduceByKey((v1,v2) => v1 + v2)
       .map({case ((docid, u1, u2), n11) => (docid, (u1,u2,n11))})
       .groupByKey()
@@ -44,35 +44,35 @@ object ClassicToCT {
 
   }
 
-  def ctFromDoc(docid:String, counts_per_doc:Iterable[(String,String,Double)]):Iterable[(String, CT2)] = {
+  def ctFromDoc(docid:String, counts_per_doc:Iterable[(String,String,Float)]):Iterable[(String, CT2[String])] = {
 
     val n = counts_per_doc.map(_._3).sum
     val o = counts_per_doc.size
 
     // u1, freq, occurrences
-    val n1dot_counts = counts_per_doc.map({case (u1,u2,n11) => (u1, n11, 1d)})
+    val n1dot_counts = counts_per_doc.map({case (u1,u2,n11) => (u1, n11, 1f)})
       .groupBy({case (u1, n11, o11) => u1 })
       .map({case (u1, iter_u1_n11_o11) => (u1, iter_u1_n11_o11.reduceLeft((r,c) => (r._1, r._2+c._2, r._3+c._3))) }) /* eq. reduceByKey */
 
     // u2, freq, occurrences
-    val ndot1_counts = counts_per_doc.map({case (u1,u2,n11) => (u2, n11, 1d)})
+    val ndot1_counts = counts_per_doc.map({case (u1,u2,n11) => (u2, n11, 1f)})
       .groupBy({case (u2, n11, o11) => u2 })
       .map({case (u2, iter_u2_n11_o11) => (u2, iter_u2_n11_o11.reduceLeft((r,c) => (r._1, r._2+c._2, r._3+c._3))) }) /* eq. reduceByKey */
 
-    def get_summed_value(u:String):(Double,Double) = {
+    def get_summed_value(u:String):(Float,Float) = {
       val x = ndot1_counts.get(u) match {
         case Some(x) => (x._2, x._3)
-        case None => (0d,0d)
+        case None => (0f,0f)
       }
       val y = n1dot_counts.get(u) match {
         case Some(y) => (y._2, y._3)
-        case None => (0d,0d)
+        case None => (0f,0f)
       }
       return (x._1+y._1, x._2+y._2)
     }
 
     val joined = counts_per_doc.map({case (u1, u2, n11) => (u1, u2, n11, get_summed_value(u1), get_summed_value(u2), n, o)})
-      .map({case (u1,u2,n11,(n1dot,o1dot),(ndot1,odot1),n,o) => (docid, new CT2(u1,u2,n11,n1dot-n11,ndot1-n11,n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, 1l))})
+      .map({case (u1,u2,n11,(n1dot,o1dot),(ndot1,odot1),n,o) => (docid, new CT2[String](u1,u2,n11,n1dot-n11,ndot1-n11,n-n1dot-ndot1+n11, o1dot-1f, odot1-1f, o-o1dot-odot1+1f, 1))})
 
     return joined
 
@@ -86,14 +86,14 @@ object ClassicToCT {
   def classicWordFeatureCountToAggregatedCT2(lines_in:RDD[String]):RDD[String] = {
 
     val coocc = lines_in.map(line => line.split("\t", 3))
-      .map({case Array(u1, u2, n11) => ((u1, u2), n11.toDouble)})
+      .map({case Array(u1, u2, n11) => ((u1, u2), n11.toFloat)})
       .reduceByKey((v1,v2) => v1 + v2)
     coocc.cache()
 
-    val u1occ = coocc.map({case ((u1, u2), n11) => (u1, (n11,1d))})
+    val u1occ = coocc.map({case ((u1, u2), n11) => (u1, (n11,1f))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2))
 
-    val u2occ = coocc.map({case ((u1, u2), n11) => (u2, (n11,1d))})
+    val u2occ = coocc.map({case ((u1, u2), n11) => (u2, (n11,1f))})
       .reduceByKey((r,c) => (r._1+c._1,r._2+c._2))
 
     val joined = coocc.map({case ((u1, u2), n11) => (u1, (u2, n11))})
@@ -104,10 +104,15 @@ object ClassicToCT {
 
     coocc.unpersist()
 
-    val n = joined.map({case (u1, u2, n11, n1dot, ndot1) => n11}).sum()
-    val o = joined.count().toDouble
+    val n_ = joined.map({case (u1, u2, n11, n1dot, ndot1) => n11}).sum()
+    var n = 1f
+    if(n_ > Float.MaxValue)
+      n = Float.MaxValue
+    else
+      n = n_.toFloat
+    val o = joined.count().toFloat
 
-    val lines_out = joined.map({ case (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2(u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1d, odot1-1d, o-o1dot-odot1+1d, 1l).toString()})
+    val lines_out = joined.map({ case (u1, u2, n11, (n1dot,o1dot), (ndot1,odot1) ) => new CT2[String](u1, u2, n11, n1dot-n11, ndot1-n11, n-n1dot-ndot1+n11, o1dot-1f, odot1-1f, o-o1dot-odot1+1f, 1).toString()})
 
     return lines_out;
   }

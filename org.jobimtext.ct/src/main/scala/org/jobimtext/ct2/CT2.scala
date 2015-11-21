@@ -18,7 +18,6 @@
 
 package org.jobimtext.ct2
 
-import java.text.DecimalFormat
 
 import org.jobimtext.util.Util
 
@@ -27,20 +26,20 @@ import org.jobimtext.util.Util
  */
 object CT2 {
 
-  val EMPTY_CT = CT2("","",0d,0d,0d,0d,0d,0d,0d,0l)
+  val EMPTY_CT = CT2[String]("","",0f,0f,0f,0f,0f,0f,0f,0)
 
-  def fromString(ct2AsString:String):CT2 = {
+  def fromString(ct2AsString:String):CT2[String] = {
     ct2AsString.split("\t") match {
-      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs) => CT2(u1,u2,n11.toDouble,n12.toDouble,n21.toDouble,n22.toDouble,o12.toDouble,o21.toDouble,o22.toDouble,ndocs.toLong)
-      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22) => CT2(u1,u2,n11.toDouble,n12.toDouble,n21.toDouble,n22.toDouble,o12.toDouble,o21.toDouble,o22.toDouble,1l)
+      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs) => CT2(u1,u2,n11.toFloat,n12.toFloat,n21.toFloat,n22.toFloat,o12.toFloat,o21.toFloat,o22.toFloat,ndocs.toInt)
+      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22) => CT2(u1,u2,n11.toFloat,n12.toFloat,n21.toFloat,n22.toFloat,o12.toFloat,o21.toFloat,o22.toFloat,1)
       case _ => EMPTY_CT
     }
   }
 
-  def fromStringArray(ct2AsStringArray:Array[String]):CT2 = {
+  def fromStringArray(ct2AsStringArray:Array[String]):CT2[String] = {
     ct2AsStringArray match {
-      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs) => CT2(u1,u2,n11.toDouble,n12.toDouble,n21.toDouble,n22.toDouble,o12.toDouble,o21.toDouble,o22.toDouble, ndocs.toLong)
-      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22) => CT2(u1,u2,n11.toDouble,n12.toDouble,n21.toDouble,n22.toDouble,o12.toDouble,o21.toDouble,o22.toDouble,1l)
+      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22,ndocs) => CT2(u1,u2,n11.toFloat,n12.toFloat,n21.toFloat,n22.toFloat,o12.toFloat,o21.toFloat,o22.toFloat, ndocs.toInt)
+      case  Array(u1,u2,n11,n12,n21,n22,o12,o21,o22) => CT2(u1,u2,n11.toFloat,n12.toFloat,n21.toFloat,n22.toFloat,o12.toFloat,o21.toFloat,o22.toFloat,1)
       case _ => EMPTY_CT
     }
   }
@@ -48,7 +47,7 @@ object CT2 {
 }
 
 
-case class CT2(u1:String, u2:String, var n11:Double, var n12:Double, var n21:Double, var n22:Double, var o12:Double, var o21:Double, var o22:Double, var ndocs:Long) {
+case class CT2[T](u1:T, u2:T, var n11:Float, var n12:Float, var n21:Float, var n22:Float, var o12:Float, var o21:Float, var o22:Float, var ndocs:Int) {
 
   def n1dot = n11 + n12
   def ndot1 = n11 + n21
@@ -61,8 +60,8 @@ case class CT2(u1:String, u2:String, var n11:Double, var n12:Double, var n21:Dou
   def odot1 = o11 + o21
   def o = o11 + o12 + o21 + o22
 
-  def +(b:CT2):CT2 =
-    CT2(u1,u2,
+  def +(b:CT2[T]):CT2[T] =
+    CT2[T](u1,u2,
       n11+b.n11,
       n12+b.n12,
       n21+b.n21,
@@ -72,8 +71,7 @@ case class CT2(u1:String, u2:String, var n11:Double, var n12:Double, var n21:Dou
       o22+b.o22,
       ndocs+b.ndocs)
 
-
-  def +=(ct2:CT2):CT2 = {
+  def +=(ct2:CT2[T]):CT2[T] = {
     n11+=ct2.n11
     n12+=ct2.n12
     n21+=ct2.n21

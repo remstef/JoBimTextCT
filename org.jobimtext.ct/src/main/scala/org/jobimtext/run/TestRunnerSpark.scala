@@ -39,7 +39,7 @@ object TestRunnerSpark {
       .setAppName("App")
       .set("spark.io.compression.codec","org.apache.spark.io.LZ4CompressionCodec")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2]))
+      .registerKryoClasses(Array(classOf[FixedSizeTreeSet[_]], classOf[CT2[_]]))
 
 
     val sc = new SparkContext(conf);
