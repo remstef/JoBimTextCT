@@ -49,16 +49,16 @@ object CT2 {
 
 case class CT2[T](u1:T, u2:T, var n11:Float, var n12:Float, var n21:Float, var n22:Float, var o12:Float, var o21:Float, var o22:Float, var ndocs:Int) {
 
-  def n1dot = n11 + n12
-  def ndot1 = n11 + n21
-  def n2dot = n21 + n22
-  def ndot2 = n12 + n22
-  def n = n11 + n12 + n21 + n22
+  def n1dot() = n11 + n12
+  def ndot1() = n11 + n21
+  def n2dot() = n21 + n22
+  def ndot2() = n12 + n22
+  def n() = n11 + n12 + n21 + n22
 
-  def o11 = 1d
-  def o1dot = o11 + o12
-  def odot1 = o11 + o21
-  def o = o11 + o12 + o21 + o22
+  def o11() = 1f
+  def o1dot() = o11 + o12
+  def odot1() = o11 + o21
+  def o() = o11 + o12 + o21 + o22
 
   def +(b:CT2[T]):CT2[T] =
     CT2[T](u1,u2,
@@ -83,16 +83,6 @@ case class CT2[T](u1:T, u2:T, var n11:Float, var n12:Float, var n21:Float, var n
     this
   }
 
-  override def toString():String = {
-    "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%d".format(
-      u1,u2,
-      Util.format(n11),
-      Util.format(n12),
-      Util.format(n21),
-      Util.format(n22),
-      Util.format(o12),
-      Util.format(o21),
-      Util.format(o22),ndocs)
-  }
+  override def toString():String = f"${u1}\t${u1}\t${Util.format(n11)}\t${Util.format(n12)}\t${Util.format(n21)}\t${Util.format(n22)}\t${Util.format(o12)}\t${Util.format(o21)}\t${Util.format(o22)}\t${ndocs}%d"
 
 }
