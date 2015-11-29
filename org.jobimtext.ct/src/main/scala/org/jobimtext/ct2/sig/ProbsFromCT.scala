@@ -18,9 +18,9 @@
 
 package org.jobimtext.ct2.sig
 
+import de.tudarmstadt.lt.scalautils.FormatUtils
 import org.apache.spark.rdd.RDD
 import org.jobimtext.ct2.CT2
-import org.jobimtext.util.Util
 
 import scala.math.log10
 
@@ -38,7 +38,7 @@ object ProbsFromCT {
 
     val probs = lines_in.map(line => CT2.fromString(line))
       .map(ct2 => (ct2, getLog10ConditionalProbability(ct2)))
-      .map(tupl => "%s\t%s\t%s".format(tupl._1.u1, tupl._1.u2, Util.format(tupl._2)))
+      .map(tupl => "%s\t%s\t%s".format(tupl._1.u1, tupl._1.u2, FormatUtils.format(tupl._2)))
     val lines_out = probs
 
     return lines_out

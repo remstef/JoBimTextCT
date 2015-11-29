@@ -18,8 +18,8 @@
 
 package org.jobimtext.ct2
 
+import de.tudarmstadt.lt.scalautils.FormatUtils
 
-import org.jobimtext.util.Util
 
 /**
  * Created by Steffen Remus.
@@ -83,6 +83,6 @@ case class CT2[T](u1:T, u2:T, var n11:Float, var n12:Float, var n21:Float, var n
     this
   }
 
-  override def toString():String = f"${u1}\t${u1}\t${Util.format(n11)}\t${Util.format(n12)}\t${Util.format(n21)}\t${Util.format(n22)}\t${Util.format(o12)}\t${Util.format(o21)}\t${Util.format(o22)}\t${ndocs}%d"
+  override def toString():String = f"${u1}\t${u1}\t${FormatUtils.format(n11)}\t${FormatUtils.format(n12)}\t${FormatUtils.format(n21)}\t${FormatUtils.format(n22)}\t${FormatUtils.format(o12)}\t${FormatUtils.format(o21)}\t${FormatUtils.format(o22)}\t${ndocs}%d"
 
 }

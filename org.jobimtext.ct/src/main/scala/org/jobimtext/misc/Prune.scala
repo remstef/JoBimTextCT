@@ -18,9 +18,9 @@
 
 package org.jobimtext.misc
 
+import de.tudarmstadt.lt.scalautils.FormatUtils
 import org.apache.spark.rdd.RDD
 import org.jobimtext.ct2.CT2
-import org.jobimtext.util.Util
 
 /**
  * Created by Steffen Remus.
@@ -42,7 +42,7 @@ object Prune {
     lines_in.map(_.split("\t"))
       .map({ case Array(u1, u2, value) => (u1, u2, value.toDouble) })
       .filter(filterfun)
-      .map({ case (u1,u2,value) => "%s\t%s\t%s".format(u1,u2, Util.format(value)) })
+      .map({ case (u1,u2,value) => "%s\t%s\t%s".format(u1,u2, FormatUtils.format(value)) })
   }
 
 

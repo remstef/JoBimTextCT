@@ -18,6 +18,7 @@
 
 package org.jobimtext.run
 
+import de.tudarmstadt.lt.scalautils.FixedSizeTreeSet
 import org.apache.hadoop.mapred.InvalidInputException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkContext, SparkConf}
@@ -26,7 +27,6 @@ import org.jobimtext.ct2.{CT2, AggregateCT, ClassicToCT}
 import org.jobimtext.extract.{NgramWithHole, CooccurrenceWindow}
 import org.jobimtext.misc._
 import org.jobimtext.sim._
-import org.jobimtext.util.FixedSizeTreeSet
 
 /**
  * Created by Steffen Remus.

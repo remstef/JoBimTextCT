@@ -18,6 +18,7 @@
 
 package org.jobimtext.run
 
+import de.tudarmstadt.lt.scalautils.FixedSizeTreeSet
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 import org.jobimtext.ct2
@@ -26,7 +27,6 @@ import org.jobimtext.ct2.sig.ProbsFromCT
 import org.jobimtext.misc.{JoinBySharedFeaturesCartesian, TakeTopN}
 import org.jobimtext.sim._
 import org.jobimtext.spark.SparkConfigured
-import org.jobimtext.util.FixedSizeTreeSet
 
 import scala.tools
 import scala.tools.reflect

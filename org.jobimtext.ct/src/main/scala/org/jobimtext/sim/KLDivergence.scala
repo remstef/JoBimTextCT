@@ -18,9 +18,10 @@
 
 package org.jobimtext.sim
 
+import de.tudarmstadt.lt.scalautils.FormatUtils
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
-import org.jobimtext.util.Util
+
 
 /**
  * Created by Steffen Remus.
@@ -35,7 +36,7 @@ object KLDivergence {
   def apply(lines_in:RDD[String]):RDD[String] = {
     val joined_probability_distributions_shared_features = repr(lines_in)
     val kl_divergence = kl(joined_probability_distributions_shared_features)
-    val lines_out = kl_divergence.map({case (e,f,dkl) => "%s\t%s\t%s".format(e,f,Util.format(dkl))})
+    val lines_out = kl_divergence.map({case (e,f,dkl) => "%s\t%s\t%s".format(e,f,FormatUtils.format(dkl))})
     return lines_out
   }
 

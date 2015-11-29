@@ -18,8 +18,8 @@
 
 package org.jobimtext.misc
 
+import de.tudarmstadt.lt.scalautils.FormatUtils
 import org.apache.spark.rdd.RDD
-import org.jobimtext.util.Util
 import org.apache.spark.SparkContext._
 
 /**
@@ -42,7 +42,7 @@ object TakeTopAddRestLog10 {
       .map({case (u1, group) => (u1, takeTopMakeRest(n, u1, group.toSeq))})
       .flatMap({case (u1, group) => group.map({case (u2, log10prob) => (u1,u2,log10prob)})})
 
-    val lines_out = top_probs.map({case (u1,u2,log10prob) =>  "%s\t%s\t%s".format(u1,u2,Util.format(log10prob))})
+    val lines_out = top_probs.map({case (u1,u2,log10prob) =>  "%s\t%s\t%s".format(u1,u2,FormatUtils.format(log10prob))})
 
     return lines_out
   }
